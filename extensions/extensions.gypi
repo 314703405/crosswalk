@@ -37,6 +37,14 @@
     'renderer/xwalk_v8tools_module.cc',
     'renderer/xwalk_v8tools_module.h',
   ],
+  'conditions': [
+    ['OS=="android"',{
+      'sources': [
+        'common/android/xwalk_extension_bridge.cc',
+        'common/android/xwalk_extension_bridge.h',
+      ],
+    }],
+  ],
   'includes': [
     'xwalk_js2c.gypi',
   ],

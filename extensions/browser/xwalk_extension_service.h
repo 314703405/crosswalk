@@ -56,6 +56,10 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
       RegisterExtensionsCallback;
   static void SetRegisterExtensionsCallbackForTesting(
       const RegisterExtensionsCallback& callback);
+#if defined(OS_ANDROID)
+  static void SetRegisterExtensionsCallbackForAndroid(
+      const RegisterExtensionsCallback& callback);
+#endif
 
  private:
   void RegisterExtensionsForNewHost(content::RenderProcessHost* host);

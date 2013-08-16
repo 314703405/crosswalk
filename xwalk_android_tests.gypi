@@ -5,6 +5,7 @@
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
+        'xwalk_core_extensions_java',
         'xwalk_core_java',
         'xwalk_core_shell_apk_pak',
       ],
@@ -125,6 +126,7 @@
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
+        'xwalk_core_extensions_java',
         # Runtime code is also built by this target.
         'xwalk_core_java',
         'xwalk_runtime_shell_apk_pak',
