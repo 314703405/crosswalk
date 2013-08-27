@@ -27,6 +27,7 @@ import org.chromium.content.common.CommandLine;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
+import org.xwalk.core.xwview.shell.ExtensionEcho;
 
 public class XWalkViewShellActivity extends Activity {
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
@@ -40,6 +41,7 @@ public class XWalkViewShellActivity extends Activity {
     private ImageButton mNextButton;
     private ClipDrawable mProgressDrawable;
     private XWalkView mView;
+    private ExtensionEcho mEcho;
     private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
     private FrameLayout mCustomViewContainer;
     private View mCustomView;
@@ -67,6 +69,7 @@ public class XWalkViewShellActivity extends Activity {
 
         setContentView(R.layout.testshell_activity);
 
+        mEcho = new ExtensionEcho();
         mView = (XWalkView) findViewById(R.id.content_container);
         mToolbar = (LinearLayout) findViewById(R.id.toolbar);
         mProgressDrawable = (ClipDrawable) findViewById(R.id.toolbar).getBackground();
