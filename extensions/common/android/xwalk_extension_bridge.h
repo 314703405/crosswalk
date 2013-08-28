@@ -9,6 +9,7 @@
 
 #include "base/android/jni_helper.h"
 #include "base/android/scoped_java_ref.h"
+#include "base/callback.h"
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
@@ -28,16 +29,17 @@ class XWalkExtensionBridge : public XWalkExtension {
   virtual const char* GetJavaScriptAPI() OVERRIDE;
   virtual XWalkExtension::Context* CreateContext(
       const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
-  void RegisterExtensions(XWalkExtensionService* extension_service);
 
  private:
-  class Context : public XWalkExtension::Context {
+  class Context
+      : public XWalkExtension::Context,
+        public base::RefCountedThreadSafe<Context> {
    public:
-    Context(JNIEnv* env, jobject obj,
+    Context(const JavaObjectWeakGlobalRef& java_ref,
         const XWalkExtension::PostMessageCallback& post_message);
     ~Context();
 
-    inline void PostMessageWrapper(const char* msg) {
+    void PostMessageWrapper(const char* msg) {
       PostMessage(scoped_ptr<base::Value>(new base::StringValue(msg)));
     }
 
@@ -45,9 +47,9 @@ class XWalkExtensionBridge : public XWalkExtension {
     virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
     virtual scoped_ptr<base::Value> HandleSyncMessage(
         scoped_ptr<base::Value> msg) OVERRIDE;
+    void HandleMessageToJNI(const std::string& msg);
 
-    JNIEnv* jni_env_;
-    jobject jni_obj_;
+    JavaObjectWeakGlobalRef java_ref_;
 
     DISALLOW_COPY_AND_ASSIGN(Context);
   };
@@ -55,8 +57,7 @@ class XWalkExtensionBridge : public XWalkExtension {
   bool is_valid();
 
   Context* context_;
-  JNIEnv* jni_env_;
-  jobject jni_obj_;
+  JavaObjectWeakGlobalRef java_ref_;
   std::string js_api_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionBridge);
