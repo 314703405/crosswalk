@@ -27,11 +27,6 @@ namespace {
 XWalkExtensionService::RegisterExtensionsCallback
 g_register_extensions_callback;
 
-#if defined(OS_ANDROID)
-typedef std::vector<XWalkExtensionService::RegisterExtensionsCallback>
-    RegisterExtensionCallbacks;
-RegisterExtensionCallbacks g_android_register_extension_callbacks;
-#endif
 }
 
 XWalkExtensionService::XWalkExtensionService(RuntimeRegistry* runtime_registry)
@@ -44,14 +39,6 @@ XWalkExtensionService::XWalkExtensionService(RuntimeRegistry* runtime_registry)
 
   if (!g_register_extensions_callback.is_null())
     g_register_extensions_callback.Run(this);
-#if defined(OS_ANDROID)
-  for (RegisterExtensionCallbacks::iterator
-          it = g_android_register_extension_callbacks.begin();
-       it != g_android_register_extension_callbacks.end();
-       ++it) {
-    it->Run(this);
-  }
-#endif
 }
 
 XWalkExtensionService::~XWalkExtensionService() {
@@ -196,14 +183,6 @@ void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
     const RegisterExtensionsCallback& callback) {
   g_register_extensions_callback = callback;
 }
-
-#if defined(OS_ANDROID)
-// static
-void XWalkExtensionService::SetRegisterExtensionsCallbackForAndroid(
-    const RegisterExtensionsCallback& callback) {
-  g_android_register_extension_callbacks.push_back(callback);
-}
-#endif
 
 void XWalkExtensionService::RegisterExtensionsForNewHost(
     content::RenderProcessHost* host) {

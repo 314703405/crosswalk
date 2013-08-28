@@ -59,6 +59,14 @@ base::StringPiece PlatformResourceProvider(int key) {
 
 namespace xwalk {
 
+#if defined(OS_ANDROID)
+RuntimeRegistry* XWalkBrowserMainParts::runtime_registry_ =
+    new RuntimeRegistry();
+extensions::XWalkExtensionService* XWalkBrowserMainParts::extension_service_ =
+    new extensions::XWalkExtensionService(
+        XWalkBrowserMainParts::runtime_registry_);
+#endif  // defined(OS_ANDROID)
+
 XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
@@ -169,9 +177,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
   DCHECK(runtime_context_);
   runtime_context_->PreMainMessageLoopRun();
-  runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(
-      new extensions::XWalkExtensionService(runtime_registry_.get()));
 #else
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
@@ -249,8 +254,13 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 
 void XWalkBrowserMainParts::RegisterInternalExtensions() {
   extension_service_->RegisterExtension(new RuntimeExtension());
+#if defined(OS_ANDROID)
+  extension_service_->RegisterExtension(
+      new experimental::DialogExtension(runtime_registry_));
+#else
   extension_service_->RegisterExtension(
       new experimental::DialogExtension(runtime_registry_.get()));
+#endif  // defined(OS_ANDROID)
 }
 
 }  // namespace xwalk

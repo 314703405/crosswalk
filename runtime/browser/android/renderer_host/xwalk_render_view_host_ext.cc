@@ -12,7 +12,9 @@
 #include "content/public/browser/user_metrics.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/frame_navigate_params.h"
+#include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/common/android/xwalk_render_view_messages.h"
 
 namespace xwalk {
@@ -20,6 +22,10 @@ namespace xwalk {
 XWalkRenderViewHostExt::XWalkRenderViewHostExt(content::WebContents* contents)
     : content::WebContentsObserver(contents),
       has_new_hit_test_data_(false) {
+  extensions::XWalkExtensionWebContentsHandler::CreateForWebContents(web_contents());
+  extensions::XWalkExtensionWebContentsHandler* handler =
+      extensions::XWalkExtensionWebContentsHandler::FromWebContents(web_contents());
+  handler->set_extension_service(XWalkBrowserMainParts::extension_service());
 }
 
 XWalkRenderViewHostExt::~XWalkRenderViewHostExt() {}
@@ -133,6 +139,11 @@ void XWalkRenderViewHostExt::OnUpdateHitTestData(
   DCHECK(CalledOnValidThread());
   last_hit_test_data_ = hit_test_data;
   has_new_hit_test_data_ = true;
+}
+
+void XWalkRenderViewHostExt::DidCreateScriptContext(int64_t frame_id) {
+  int i = 0;
+  i++;
 }
 
 }  // namespace xwalk

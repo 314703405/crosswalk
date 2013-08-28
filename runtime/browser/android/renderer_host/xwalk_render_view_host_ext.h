@@ -71,6 +71,7 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
 
   void OnDocumentHasImagesResponse(int msg_id, bool has_images);
   void OnUpdateHitTestData(const XWalkHitTestData& hit_test_data);
+  void DidCreateScriptContext(int64_t frame_id);
   void OnPictureUpdated();
 
   bool IsRenderViewReady() const;
