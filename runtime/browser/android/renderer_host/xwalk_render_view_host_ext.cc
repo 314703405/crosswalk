@@ -12,7 +12,10 @@
 #include "content/public/browser/user_metrics.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/frame_navigate_params.h"
+#include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/android/xwalk_render_view_messages.h"
 
 namespace xwalk {
@@ -100,6 +103,22 @@ void XWalkRenderViewHostExt::DidNavigateAnyFrame(
 
   // RuntimeContext::FromWebContents(web_contents())
   //    ->AddVisitedURLs(params.redirects);
+}
+
+void XWalkRenderViewHostExt::RenderViewCreated(
+    content::RenderViewHost* render_view_host) {
+  content::WebContents* contents = web_contents();
+  extensions::XWalkExtensionService* service =
+      XWalkContentBrowserClient::Get()->main_parts()->extension_service();
+
+  // FIXME(halton): Figure out the reason why handler is not crated in
+  // extension observer. Before that, below code is needed to handle the
+  // extension IPC messages.
+  extensions::XWalkExtensionWebContentsHandler::CreateForWebContents(contents);
+  extensions::XWalkExtensionWebContentsHandler* handler =
+      extensions::XWalkExtensionWebContentsHandler::FromWebContents(contents);
+  handler->set_extension_service(service);
+  handler->set_render_process_host(contents->GetRenderProcessHost());
 }
 
 bool XWalkRenderViewHostExt::OnMessageReceived(const IPC::Message& message) {

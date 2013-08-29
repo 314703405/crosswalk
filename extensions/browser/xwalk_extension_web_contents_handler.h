@@ -17,6 +17,11 @@ class RenderProcessHost;
 }
 
 namespace xwalk {
+
+#if defined(OS_ANDROID)
+class XWalkRenderViewHostExt;
+#endif
+
 namespace extensions {
 
 class XWalkExtension;
@@ -42,6 +47,9 @@ class XWalkExtensionWebContentsHandler
 
  private:
   friend class XWalkExtensionService;
+#if defined(OS_ANDROID)
+  friend class xwalk::XWalkRenderViewHostExt;
+#endif
 
   void set_extension_service(XWalkExtensionService* extension_service) {
     extension_service_ = extension_service;
