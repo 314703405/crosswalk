@@ -11,6 +11,7 @@ import android.util.Log;
 import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkClient;
+import org.xwalk.core.xwview.test.ExtensionEcho;
 
 /**
  * Test suite for ExtensionEcho().
@@ -19,8 +20,6 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        ExtensionEcho echo = new ExtensionEcho();
 
         class TestXWalkClient extends XWalkClient {
             @Override
@@ -39,9 +38,14 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
     @SmallTest
     @Feature({"ExtensionEcho"})
     public void testExtensionEcho() throws Throwable {
-        final String url = "file:///sdcard/test/echo.html";
+        ExtensionEcho echo = new ExtensionEcho();
+        final String url = "file:///android_asset/echo.html";
         final String expected_title = "Pass";
+
         loadUrlSync(url);
+        
+        // sleep to allow extension to change title
+        Thread.sleep(1000);
         assertEquals(expected_title, getTitleOnUiThread());
     }
 }
