@@ -18,6 +18,8 @@
 namespace xwalk {
 namespace extensions {
 
+class XWalkExtensionBridgeInstance;
+
 class XWalkExtensionBridge : public XWalkExtension {
  public:
   XWalkExtensionBridge(JNIEnv* env, jobject obj,
@@ -27,40 +29,43 @@ class XWalkExtensionBridge : public XWalkExtension {
   void PostMessage(JNIEnv* env, jobject obj, jstring msg);
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
-  virtual XWalkExtension::Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
 
  private:
-  class Context
-      : public XWalkExtension::Context,
-        public base::RefCountedThreadSafe<Context> {
-   public:
-    Context(const JavaObjectWeakGlobalRef& java_ref,
-        const XWalkExtension::PostMessageCallback& post_message);
-    ~Context();
-
-    void PostMessageWrapper(const char* msg) {
-      PostMessage(scoped_ptr<base::Value>(new base::StringValue(msg)));
-    }
-
-   private:
-    virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
-    virtual scoped_ptr<base::Value> HandleSyncMessage(
-        scoped_ptr<base::Value> msg) OVERRIDE;
-    void HandleMessageToJNI(const std::string& msg);
-
-    JavaObjectWeakGlobalRef java_ref_;
-
-    DISALLOW_COPY_AND_ASSIGN(Context);
-  };
-
   bool is_valid();
 
-  Context* context_;
+  XWalkExtensionBridgeInstance* instance_;
   JavaObjectWeakGlobalRef java_ref_;
   std::string js_api_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionBridge);
+};
+
+class XWalkExtensionBridgeInstance
+      : public XWalkExtensionInstance,
+        public base::RefCountedThreadSafe<XWalkExtensionBridgeInstance> {
+ public:
+  explicit XWalkExtensionBridgeInstance(
+      const JavaObjectWeakGlobalRef& java_ref);
+  ~XWalkExtensionBridgeInstance();
+
+  void PostMessageWrapper(const char* msg) {
+    PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg)));
+  }
+
+ private:
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  virtual scoped_ptr<base::Value> HandleSyncMessage(
+      scoped_ptr<base::Value> msg) OVERRIDE;
+
+  void HandleMessageToJNI(const std::string& msg);
+  std::string HandleSyncMessageToJNI(const std::string& msg);
+  void ReturnSyncMessageToJS(std::string* ret_val, const std::string& msg);
+
+  JavaObjectWeakGlobalRef java_ref_;
+
+  DISALLOW_COPY_AND_ASSIGN(XWalkExtensionBridgeInstance);
 };
 
 bool RegisterXWalkExtensionBridge(JNIEnv* env);

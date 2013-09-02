@@ -21,7 +21,7 @@ XWalkExtensionBridge::XWalkExtensionBridge(JNIEnv* env, jobject obj,
                                            jint api_version,
                                            jstring name, jstring js_api)
     : XWalkExtension(),
-      context_(NULL),
+      instance_(NULL),
       java_ref_(env, obj) {
   const char *str = env->GetStringUTFChars(name, 0);
   set_name(str);
@@ -43,7 +43,7 @@ XWalkExtensionBridge::~XWalkExtensionBridge() {
 }
 
 bool XWalkExtensionBridge::is_valid() {
-  if (!context_)
+  if (!instance_)
     return false;
   return true;
 }
@@ -52,7 +52,7 @@ void XWalkExtensionBridge::PostMessage(JNIEnv* env, jobject obj, jstring msg) {
   DCHECK(is_valid());
 
   const char* str = env->GetStringUTFChars(msg, 0);
-  context_->PostMessageWrapper(str);
+  instance_->PostMessageWrapper(str);
   env->ReleaseStringUTFChars(msg, str);
 }
 
@@ -60,27 +60,25 @@ const char* XWalkExtensionBridge::GetJavaScriptAPI() {
   return js_api_.c_str();
 }
 
-XWalkExtension::Context* XWalkExtensionBridge::CreateContext(
+XWalkExtensionInstance* XWalkExtensionBridge::CreateInstance(
     const XWalkExtension::PostMessageCallback& post_message) {
-  if (!context_) {
-    context_ = new XWalkExtensionBridge::Context(java_ref_,
-                                                 post_message);
+  if (!instance_) {
+    instance_ = new XWalkExtensionBridgeInstance(java_ref_);
+    instance_->SetPostMessageCallback(post_message);
   }
 
-  return context_;
+  return instance_;
 }
 
-XWalkExtensionBridge::Context::Context(
-    const JavaObjectWeakGlobalRef& java_ref,
-    const XWalkExtension::PostMessageCallback& post_message)
-    : XWalkExtension::Context(post_message),
-      java_ref_(java_ref) {
+XWalkExtensionBridgeInstance::XWalkExtensionBridgeInstance(
+    const JavaObjectWeakGlobalRef& java_ref)
+    : java_ref_(java_ref) {
 }
 
-XWalkExtensionBridge::Context::~Context() {
+XWalkExtensionBridgeInstance::~XWalkExtensionBridgeInstance() {
 }
 
-void XWalkExtensionBridge::Context::HandleMessage(
+void XWalkExtensionBridgeInstance::HandleMessage(
     scoped_ptr<base::Value> msg) {
   std::string value;
 
@@ -91,38 +89,36 @@ void XWalkExtensionBridge::Context::HandleMessage(
       BrowserThread::UI,
       FROM_HERE,
       base::Bind(
-          &XWalkExtensionBridge::Context::HandleMessageToJNI,
+          &XWalkExtensionBridgeInstance::HandleMessageToJNI,
           this,
           value));
 }
 
 scoped_ptr<base::Value>
-XWalkExtensionBridge::Context::HandleSyncMessage(
+XWalkExtensionBridgeInstance::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
-  base::StringValue* ret_val = base::Value::CreateStringValue("");
 
   std::string value;
   if (!msg->GetAsString(&value)) {
-    return scoped_ptr<base::Value>(ret_val);
+    return scoped_ptr<base::Value>(base::Value::CreateStringValue(""));
   }
 
-  JNIEnv* env = base::android::AttachCurrentThread();
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
-  if (obj.is_null())
-    return scoped_ptr<base::Value>(ret_val);
+  std::string ret_value;
+  BrowserThread::PostTaskAndReplyWithResult(
+      BrowserThread::UI,
+      FROM_HERE,
+      base::Bind(
+          &XWalkExtensionBridgeInstance::HandleSyncMessageToJNI,
+          this, value),
+      base::Bind(
+          &XWalkExtensionBridgeInstance::ReturnSyncMessageToJS,
+          this, &ret_value));
 
-  jstring buffer = env->NewStringUTF(value.c_str());
-  ScopedJavaLocalRef<jstring> ret =
-      Java_XWalkExtensionBridge_handleSyncMessage(env, obj.obj(), buffer);
-
-  const char *str = env->GetStringUTFChars(ret.obj(), 0);
-  ret_val = base::Value::CreateStringValue(str);
-  env->ReleaseStringUTFChars(ret.obj(), str);
-
-  return scoped_ptr<base::Value>(ret_val);
+  return scoped_ptr<base::Value>(
+      base::Value::CreateStringValue(ret_value.c_str()));
 }
 
-void XWalkExtensionBridge::Context::HandleMessageToJNI(const std::string& msg) {
+void XWalkExtensionBridgeInstance::HandleMessageToJNI(const std::string& msg) {
   JNIEnv* env = base::android::AttachCurrentThread();
 
   jstring buffer = env->NewStringUTF(msg.c_str());
@@ -133,10 +129,33 @@ void XWalkExtensionBridge::Context::HandleMessageToJNI(const std::string& msg) {
   Java_XWalkExtensionBridge_handleMessage(env, obj.obj(), buffer);
 }
 
+std::string XWalkExtensionBridgeInstance::HandleSyncMessageToJNI(
+    const std::string& msg) {
+  JNIEnv* env = base::android::AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return "";
+
+  jstring buffer = env->NewStringUTF(msg.c_str());
+  ScopedJavaLocalRef<jstring> ret =
+      Java_XWalkExtensionBridge_handleSyncMessage(env, obj.obj(), buffer);
+
+  const char *str = env->GetStringUTFChars(ret.obj(), 0);
+  std::string ret_val = str;
+  env->ReleaseStringUTFChars(ret.obj(), str);
+
+  return ret_val;
+}
+
+void XWalkExtensionBridgeInstance::ReturnSyncMessageToJS(
+    std::string* ret_val, const std::string& msg) {
+  *ret_val = msg;
+}
+
 static jint Init(JNIEnv* env, jobject obj,
     jint api_version, jstring name, jstring js_api) {
   XWalkExtensionBridge* extension =
-    new XWalkExtensionBridge(env, obj, api_version, name, js_api);
+      new XWalkExtensionBridge(env, obj, api_version, name, js_api);
   XWalkBrowserMainParts::extension_service()->RegisterExtension(
       scoped_ptr<XWalkExtension>(extension));
   return reinterpret_cast<jint>(extension);
