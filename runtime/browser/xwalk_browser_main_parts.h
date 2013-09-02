@@ -39,15 +39,12 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
 #if defined(OS_ANDROID)
   void SetRuntimeContext(RuntimeContext* context);
   RuntimeContext* runtime_context() { return runtime_context_; }
-  static extensions::XWalkExtensionService* extension_service() {
-    return extension_service_;
-  }
 #else
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
+#endif
   extensions::XWalkExtensionService* extension_service() {
     return extension_service_.get();
   }
-#endif
 
  private:
   void RegisterExternalExtensions();
@@ -61,16 +58,14 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
 
 #if defined(OS_ANDROID)
   RuntimeContext* runtime_context_;
-  static RuntimeRegistry* runtime_registry_;
-  static extensions::XWalkExtensionService* extension_service_;
 #else
   scoped_ptr<RuntimeContext> runtime_context_;
+#endif
 
   // An application wide instance to manage all Runtime instances.
   scoped_ptr<RuntimeRegistry> runtime_registry_;
 
   scoped_ptr<extensions::XWalkExtensionService> extension_service_;
-#endif
 
   // Should be about:blank If no URL is specified in command line arguments.
   GURL startup_url_;

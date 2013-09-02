@@ -10,6 +10,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "jni/XWalkExtensionBridge_jni.h"
 
 using content::BrowserThread;
@@ -156,8 +157,9 @@ static jint Init(JNIEnv* env, jobject obj,
     jint api_version, jstring name, jstring js_api) {
   XWalkExtensionBridge* extension =
       new XWalkExtensionBridge(env, obj, api_version, name, js_api);
-  XWalkBrowserMainParts::extension_service()->RegisterExtension(
-      scoped_ptr<XWalkExtension>(extension));
+  XWalkExtensionService* service =
+      XWalkContentBrowserClient::Get()->main_parts()->extension_service();
+  service->RegisterExtension(scoped_ptr<XWalkExtension>(extension));
   return reinterpret_cast<jint>(extension);
 }
 
