@@ -80,10 +80,9 @@
       ],
       'variables': {
         'java_in_dir': 'extensions/android/java',
-        'has_java_resources': 1,
+        'has_java_resources': 0,
         'R_package': 'org.xwalk.core.extensions',
         'R_package_relpath': 'org/xwalk/core/extensions',
-        'java_strings_grd': 'android_xwalk_strings.grd',
       },
       'includes': ['../build/java.gypi'],
     },
