@@ -85,43 +85,8 @@ void XWalkExtensionBridgeInstance::HandleMessage(
   if (!msg->GetAsString(&value))
     return;
 
-  BrowserThread::PostTask(
-      BrowserThread::UI,
-      FROM_HERE,
-      base::Bind(
-          &XWalkExtensionBridgeInstance::HandleMessageToJNI,
-          this,
-          value));
-}
-
-scoped_ptr<base::Value>
-XWalkExtensionBridgeInstance::HandleSyncMessage(
-    scoped_ptr<base::Value> msg) {
-
-  std::string value;
-  if (!msg->GetAsString(&value)) {
-    return scoped_ptr<base::Value>(base::Value::CreateStringValue(""));
-  }
-
-  std::string ret_value;
-  BrowserThread::PostTaskAndReplyWithResult(
-      BrowserThread::UI,
-      FROM_HERE,
-      base::Bind(
-          &XWalkExtensionBridgeInstance::HandleSyncMessageToJNI,
-          this, value),
-      base::Bind(
-          &XWalkExtensionBridgeInstance::ReturnSyncMessageToJS,
-          this, &ret_value));
-
-  return scoped_ptr<base::Value>(
-      base::Value::CreateStringValue(ret_value.c_str()));
-}
-
-void XWalkExtensionBridgeInstance::HandleMessageToJNI(const std::string& msg) {
   JNIEnv* env = base::android::AttachCurrentThread();
-
-  jstring buffer = env->NewStringUTF(msg.c_str());
+  jstring buffer = env->NewStringUTF(value.c_str());
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null())
     return;
@@ -129,27 +94,32 @@ void XWalkExtensionBridgeInstance::HandleMessageToJNI(const std::string& msg) {
   Java_XWalkExtensionBridge_handleMessage(env, obj.obj(), buffer);
 }
 
-std::string XWalkExtensionBridgeInstance::HandleSyncMessageToJNI(
-    const std::string& msg) {
+scoped_ptr<base::Value>
+XWalkExtensionBridgeInstance::HandleSyncMessage(
+    scoped_ptr<base::Value> msg) {
+  // FIXME(halton): This method is never been triggered for JS sync method.
+  // Need to be fixed.
+  base::StringValue* ret_val = base::Value::CreateStringValue("");
+
+  std::string value;
+  if (!msg->GetAsString(&value)) {
+    return scoped_ptr<base::Value>(ret_val);
+  }
+
   JNIEnv* env = base::android::AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null())
-    return "";
+    return scoped_ptr<base::Value>(ret_val);
 
-  jstring buffer = env->NewStringUTF(msg.c_str());
+  jstring buffer = env->NewStringUTF(value.c_str());
   ScopedJavaLocalRef<jstring> ret =
       Java_XWalkExtensionBridge_handleSyncMessage(env, obj.obj(), buffer);
 
   const char *str = env->GetStringUTFChars(ret.obj(), 0);
-  std::string ret_val = str;
+  ret_val = base::Value::CreateStringValue(str);
   env->ReleaseStringUTFChars(ret.obj(), str);
 
-  return ret_val;
-}
-
-void XWalkExtensionBridgeInstance::ReturnSyncMessageToJS(
-    std::string* ret_val, const std::string& msg) {
-  *ret_val = msg;
+  return scoped_ptr<base::Value>(ret_val);
 }
 
 static jint CreateExtension(JNIEnv* env, jobject obj, jstring name, jstring js_api) {

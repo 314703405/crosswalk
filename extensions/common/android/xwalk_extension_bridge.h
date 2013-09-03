@@ -67,10 +67,6 @@ class XWalkExtensionBridgeInstance
   virtual scoped_ptr<base::Value> HandleSyncMessage(
       scoped_ptr<base::Value> msg) OVERRIDE;
 
-  void HandleMessageToJNI(const std::string& msg);
-  std::string HandleSyncMessageToJNI(const std::string& msg);
-  void ReturnSyncMessageToJS(std::string* ret_val, const std::string& msg);
-
   JavaObjectWeakGlobalRef java_ref_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionBridgeInstance);
