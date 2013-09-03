@@ -36,15 +36,18 @@ XWalkExtensionBridge::~XWalkExtensionBridge() {
   JNIEnv* env = base::android::AttachCurrentThread();
 
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
-  if (obj.is_null())
+  if (obj.is_null()) {
     return;
+  }
 
   Java_XWalkExtensionBridge_onDestroy(env, obj.obj());
 }
 
 bool XWalkExtensionBridge::is_valid() {
-  if (!instance_)
+  if (!instance_) {
     return false;
+  }
+
   return true;
 }
 
@@ -82,14 +85,16 @@ void XWalkExtensionBridgeInstance::HandleMessage(
     scoped_ptr<base::Value> msg) {
   std::string value;
 
-  if (!msg->GetAsString(&value))
+  if (!msg->GetAsString(&value)) {
     return;
+  }
 
   JNIEnv* env = base::android::AttachCurrentThread();
   jstring buffer = env->NewStringUTF(value.c_str());
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
-  if (obj.is_null())
+  if (obj.is_null()) {
     return;
+  }
 
   Java_XWalkExtensionBridge_handleMessage(env, obj.obj(), buffer);
 }
@@ -108,8 +113,9 @@ XWalkExtensionBridgeInstance::HandleSyncMessage(
 
   JNIEnv* env = base::android::AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
-  if (obj.is_null())
+  if (obj.is_null()) {
     return scoped_ptr<base::Value>(ret_val);
+  }
 
   jstring buffer = env->NewStringUTF(value.c_str());
   ScopedJavaLocalRef<jstring> ret =
@@ -122,7 +128,8 @@ XWalkExtensionBridgeInstance::HandleSyncMessage(
   return scoped_ptr<base::Value>(ret_val);
 }
 
-static jint CreateExtension(JNIEnv* env, jobject obj, jstring name, jstring js_api) {
+static jint CreateExtension(JNIEnv* env, jobject obj,
+                            jstring name, jstring js_api) {
   XWalkExtensionBridge* extension =
       new XWalkExtensionBridge(env, obj, name, js_api);
   XWalkExtensionService* service =

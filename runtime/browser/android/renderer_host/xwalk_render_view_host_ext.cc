@@ -111,6 +111,9 @@ void XWalkRenderViewHostExt::RenderViewCreated(
   extensions::XWalkExtensionService* service =
       XWalkContentBrowserClient::Get()->main_parts()->extension_service();
 
+  // FIXME(halton): Figure out the reason why handler is not crated in
+  // extension observer. Before that, below code is needed to handle the
+  // extension IPC messages.
   extensions::XWalkExtensionWebContentsHandler::CreateForWebContents(contents);
   extensions::XWalkExtensionWebContentsHandler* handler =
       extensions::XWalkExtensionWebContentsHandler::FromWebContents(contents);
