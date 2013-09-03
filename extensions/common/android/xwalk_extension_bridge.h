@@ -20,12 +20,20 @@ namespace extensions {
 
 class XWalkExtensionBridgeInstance;
 
+// This class (together with XWalkExtensionBridgeInstance) is couter-part of
+// XWalkExtensionBridge.java, allow implement message passing based extension
+// written by java.
+//
+// When new a instance that inherit from XWalkExtensionBridge.java, it will
+// create an instance via JNI interface xwalk::extensions::CreateExtension.
+// Then this instance will bridge messages between JS and Java.
 class XWalkExtensionBridge : public XWalkExtension {
  public:
   XWalkExtensionBridge(JNIEnv* env, jobject obj,
                        jstring name, jstring js_api);
   virtual ~XWalkExtensionBridge();
 
+  // JNI interface to post message from Java to JS
   void PostMessage(JNIEnv* env, jobject obj, jstring msg);
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
