@@ -9,8 +9,7 @@ import org.xwalk.core.extensions.XWalkExtensionBridge;
 public class ExtensionEcho extends XWalkExtensionBridge {
 
     public ExtensionEcho() {
-        super(1,
-              "echo",
+        super("echo",
               "var echoListener = null;"
               + "extension.setMessageListener(function(msg) {"
               + "  if (echoListener instanceof Function) {"
