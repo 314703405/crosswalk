@@ -19,7 +19,6 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionBridge::XWalkExtensionBridge(JNIEnv* env, jobject obj,
-                                           jint api_version,
                                            jstring name, jstring js_api)
     : XWalkExtension(),
       instance_(NULL),
@@ -153,10 +152,9 @@ void XWalkExtensionBridgeInstance::ReturnSyncMessageToJS(
   *ret_val = msg;
 }
 
-static jint Init(JNIEnv* env, jobject obj,
-    jint api_version, jstring name, jstring js_api) {
+static jint Init(JNIEnv* env, jobject obj, jstring name, jstring js_api) {
   XWalkExtensionBridge* extension =
-      new XWalkExtensionBridge(env, obj, api_version, name, js_api);
+      new XWalkExtensionBridge(env, obj, name, js_api);
   XWalkExtensionService* service =
       XWalkContentBrowserClient::Get()->main_parts()->extension_service();
   service->RegisterExtension(scoped_ptr<XWalkExtension>(extension));

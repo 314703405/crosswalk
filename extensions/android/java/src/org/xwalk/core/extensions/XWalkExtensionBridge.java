@@ -15,8 +15,8 @@ import org.chromium.base.JNINamespace;
 public abstract class XWalkExtensionBridge {
     private int mXWalkExtension;
 
-    public XWalkExtensionBridge(int apiVersion, String name, String jsApi) {
-        mXWalkExtension = nativeInit(apiVersion, name, jsApi);
+    public XWalkExtensionBridge(String name, String jsApi) {
+        mXWalkExtension = nativeInit(name, jsApi);
     }
 
     public void postMessage(String message) {
@@ -32,6 +32,6 @@ public abstract class XWalkExtensionBridge {
     @CalledByNative
     public abstract void onDestroy();
 
-    private native int nativeInit(int apiVersion, String name, String jsApi);
+    private native int nativeInit(String name, String jsApi);
     private native void nativePostMessage(int nativeXWalkExtensionBridge, String message);
 }

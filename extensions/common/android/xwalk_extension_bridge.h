@@ -23,7 +23,7 @@ class XWalkExtensionBridgeInstance;
 class XWalkExtensionBridge : public XWalkExtension {
  public:
   XWalkExtensionBridge(JNIEnv* env, jobject obj,
-                       jint api_version, jstring name, jstring js_api);
+                       jstring name, jstring js_api);
   virtual ~XWalkExtensionBridge();
 
   void PostMessage(JNIEnv* env, jobject obj, jstring msg);
