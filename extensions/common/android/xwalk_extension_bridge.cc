@@ -152,7 +152,7 @@ void XWalkExtensionBridgeInstance::ReturnSyncMessageToJS(
   *ret_val = msg;
 }
 
-static jint Init(JNIEnv* env, jobject obj, jstring name, jstring js_api) {
+static jint CreateExtension(JNIEnv* env, jobject obj, jstring name, jstring js_api) {
   XWalkExtensionBridge* extension =
       new XWalkExtensionBridge(env, obj, name, js_api);
   XWalkExtensionService* service =

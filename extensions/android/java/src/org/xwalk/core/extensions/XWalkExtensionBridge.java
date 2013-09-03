@@ -16,7 +16,7 @@ public abstract class XWalkExtensionBridge {
     private int mXWalkExtension;
 
     public XWalkExtensionBridge(String name, String jsApi) {
-        mXWalkExtension = nativeInit(name, jsApi);
+        mXWalkExtension = nativeCreateExtension(name, jsApi);
     }
 
     public void postMessage(String message) {
@@ -32,6 +32,6 @@ public abstract class XWalkExtensionBridge {
     @CalledByNative
     public abstract void onDestroy();
 
-    private native int nativeInit(String name, String jsApi);
+    private native int nativeCreateExtension(String name, String jsApi);
     private native void nativePostMessage(int nativeXWalkExtensionBridge, String message);
 }
