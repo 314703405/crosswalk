@@ -30,7 +30,7 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "XWalkContentsClientBridge", RegisterXWalkContentsClientBridge },
   { "XWalkContent", RegisterXWalkContent },
   { "XWalkDevToolsServer", RegisterXWalkDevToolsServer },
-  { "XWalkExtensionBridge", extensions::RegisterXWalkExtensionBridge },
+  { "XWalkExtensionBridge", extensions::android::RegisterXWalkExtensionBridge },
   { "XWalkSettings", RegisterXWalkSettings},
   { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
 };

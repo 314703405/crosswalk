@@ -14,6 +14,7 @@
 
 namespace xwalk {
 namespace extensions {
+namespace android {
 
 XWalkExtensionBridge::XWalkExtensionBridge(JNIEnv* env, jobject obj,
                                            jstring name, jstring js_api)
@@ -139,5 +140,6 @@ bool RegisterXWalkExtensionBridge(JNIEnv* env) {
   return RegisterNativesImpl(env) >= 0;
 }
 
+}  // namespace android 
 }  // namespace extensions
 }  // namespace xwalk

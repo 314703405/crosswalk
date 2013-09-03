@@ -11,7 +11,7 @@ import org.chromium.base.JNINamespace;
  * This class is the implementation class for XWalkExtension by calling internal
  * XWalkExtension class.
  */
-@JNINamespace("xwalk::extensions")
+@JNINamespace("xwalk::extensions::android")
 public abstract class XWalkExtensionBridge {
     private int mXWalkExtension;
 

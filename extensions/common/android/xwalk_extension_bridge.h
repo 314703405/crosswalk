@@ -17,6 +17,7 @@
 
 namespace xwalk {
 namespace extensions {
+namespace android {
 
 class XWalkExtensionBridgeInstance;
 
@@ -74,6 +75,7 @@ class XWalkExtensionBridgeInstance
 
 bool RegisterXWalkExtensionBridge(JNIEnv* env);
 
+}  // namespace android
 }  // namespace extensions
 }  // namespace xwalk
 
