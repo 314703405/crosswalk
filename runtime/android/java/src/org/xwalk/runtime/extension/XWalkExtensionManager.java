@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xwalk.runtime.extension.api.DeviceCapabilities;
 import org.xwalk.runtime.extension.api.PresentationExtension;
 import org.xwalk.runtime.XWalkRuntimeViewProvider;
 
@@ -128,6 +129,16 @@ public class XWalkExtensionManager {
             }
             // Load PresentationExtension as an internal extension.
             new PresentationExtension(PresentationExtension.NAME, jsApiContent, mExtensionContextImpl);
+        }
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getAssetsFileContent(mContext.getAssets(),
+                                                    DeviceCapabilities.JS_API_PATH);
+            } catch(IOException e) {
+                Log.e(TAG, "Failed to read JS API file: " + DeviceCapabilities.JS_API_PATH);
+            }
+            new DeviceCapabilities(jsApiContent, mExtensionContextImpl);
         }
     }
 

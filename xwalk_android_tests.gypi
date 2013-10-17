@@ -337,6 +337,7 @@
         'java_in_dir': 'test/android/runtime_client/javatests',
         'is_test_apk': 1,
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/runtime_client_test/assets/device_capabilities.html',
           '<(PRODUCT_DIR)/runtime_client_test/assets/echo.html',
           '<(PRODUCT_DIR)/runtime_client_test/assets/echoSync.html',
         ],
@@ -346,6 +347,7 @@
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_test/assets',
           'files': [
+            'test/android/data/device_capabilities.html',
             'test/android/data/echo.html',
             'test/android/data/echoSync.html',
           ],
@@ -378,6 +380,7 @@
         'java_in_dir': 'test/android/runtime_client_embedded/javatests',
         'is_test_apk': 1,
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/device_capabilities.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/echo.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/echoSync.html',
         ],
@@ -387,6 +390,7 @@
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_test/assets',
           'files': [
+            'test/android/data/device_capabilities.html',
             'test/android/data/echo.html',
             'test/android/data/echoSync.html',
           ],
