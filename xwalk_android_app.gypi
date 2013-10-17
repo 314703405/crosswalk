@@ -92,6 +92,25 @@
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
+      'target_name': 'xwalk_app_system_apk',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_app_runtime_activity_java',
+      ],
+      'variables': {
+        'apk_name': 'XWalkAppSystem',
+        'java_in_dir': 'app/android/app_system',
+        'resource_dir': 'app/android/app_system/res',
+        'asset_location': 'app/android/app_system/assets',
+        'additional_input_paths': [
+          '<(asset_location)/extensions-config.json',
+          '<(asset_location)/index.html',
+          '<(asset_location)/sampapp-icon-helloworld.png',
+        ],
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
       'target_name': 'prepare_xwalk_app_template',
       'type': 'none',
       'dependencies': [
@@ -117,6 +136,30 @@
       ],
     },
     {
+      'target_name': 'prepare_xwalk_app_system',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_app_system_apk',
+        'xwalk_runtime_lib_apk',
+      ],
+      'actions': [
+        {
+          'action_name': 'prepare_xwalk_app_system',
+          'inputs': [
+            'tools/prepare.py',
+          ],
+          'outputs': [
+            # put an inexist file here to do this step every time.
+            '<(PRODUCT_DIR)/xwalk_app_system_1'
+          ],
+          'action': [
+          'python', 'tools/prepare.py',
+            '<(PRODUCT_DIR)/xwalk_app_system'
+          ],
+        },
+      ],
+    },
+    {
       'target_name': 'xwalk_app_template',
       'type': 'none',
       'dependencies': [
@@ -137,6 +180,31 @@
           'action': [
             'python', 'tools/tar.py',
             '<(PRODUCT_DIR)/xwalk_app_template'
+          ],
+        },
+      ],
+    },
+    {
+      'target_name': 'xwalk_app_system',
+      'type': 'none',
+      'dependencies': [
+        'prepare_xwalk_app_system',
+      ],
+      'actions': [
+        {
+          'action_name': 'tar_app_system',
+          'inputs': [
+            'app/android/app_system/AndroidManifest.xml',
+            'tools/tar.py',
+          ],
+          'outputs': [
+            '<(PRODUCT_DIR)/xwalk_app_system.tar.gz',
+            # put an inexist file here to do this step every time.
+            '<(PRODUCT_DIR)/xwalk_app_system.tar.gz1',
+          ],
+          'action': [
+            'python', 'tools/tar.py',
+            '<(PRODUCT_DIR)/xwalk_app_system'
           ],
         },
       ],
