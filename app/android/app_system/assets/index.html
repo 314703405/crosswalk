@@ -21,42 +21,42 @@
     var Error = function(error) {
       console.log(error);
     }
+
     function watchCPU() {
-      navigator.system.getCPUInfo().then(
-          function(cpu) {
+      navigator.system.getCPUInfo()
+          .then(function(cpu) {
             document.getElementById("cpu_animate").innerHTML = "cpu Load: " + cpu.load;
-          },
-          Error);
+          }, Error);
       setTimeout(watchCPU, 2000);
     }
+
     function watchMemory() {
-      navigator.system.getMemoryInfo().then(
-          function(memory) {
+      navigator.system.getMemoryInfo()
+          .then(function(memory) {
             document.getElementById("memory_animate").innerHTML = "memory availCapacity: " + memory.availCapacity / 1024 + "MB";
-          },
-          Error);
+          }, Error);
       setTimeout(watchMemory, 2000);
     }
+
     window.onload = function() {
       try {
-        navigator.system.getCPUInfo().then(
-            function(cpu) {
+        navigator.system.getCPUInfo()
+            .then(function(cpu) {
               document.getElementById("cpu").innerHTML = "First then -> numOfProcessors: " + cpu.numOfProcessors;
-            },
-            Error).then(
-            function(cpu) {
-              document.getElementById("cpu_then").innerHTML = "Second then -> archName: " + cpu.archName;
-            },
-            Error);
-        setTimeout(watchCPU, 1500);
-        navigator.system.getMemoryInfo().then(
-            function(memory) {
+            }, Error)
+            .then(function(cpu) {
+              document.getElementById("cpu_chain").innerHTML = "Second then -> archName: " + cpu.archName;
+            },Error);
+        setTimeout(watchCPU, 2000);
+
+        navigator.system.getMemoryInfo()
+            .then(function(memory) {
               document.getElementById("memory").innerHTML = "Memory total capacity: " + memory.capacity / 1024 + "MB";
-            },
-            Error);
-        setTimeout(watchMemory, 1500);
-        navigator.system.getDisplayInfo().then(
-            function(display) {
+            }, Error);
+        setTimeout(watchMemory, 2000);
+
+        navigator.system.getDisplayInfo()
+            .then(function(display) {
               var msg = "";
               for (var i = 0; i < display.displays.length; ++i) {
                 var prop = Object.getOwnPropertyNames(display.displays[i]);
@@ -68,10 +68,10 @@
               var output = document.getElementById("display");
               output.value += msg;
               output.scrollTop = output.scrollHeight;
-            },
-            Error);
-        navigator.system.getStorageInfo().then(
-            function(storage) {
+            }, Error);
+
+        navigator.system.getStorageInfo()
+            .then(function(storage) {
               var msg = "";
               for (var i = 0; i < storage.storages.length; ++i) {
                 var prop = Object.getOwnPropertyNames(storage.storages[i]);
@@ -83,8 +83,8 @@
               var output = document.getElementById("storage");
               output.value += msg;
               output.scrollTop = output.scrollHeight;
-            },
-            Error);
+            }, Error);
+
         onattach_num = 0;
         navigator.system.addEventListener("onattach", function(storage) {
             onattach_num += 1;
@@ -92,6 +92,7 @@
             output.value += "Storage: " + onattach_num + "-" + storage + "\n";
             output.scrollTop = output.scrollHeight;
           });
+
         ondetach_num = 0;
         navigator.system.addEventListener("ondetach", function(storage) {
             ondetach_num += 1;
@@ -99,6 +100,7 @@
             output.value += "Storage: " + ondetach_num + "-" + storage + "\n";
             output.scrollTop = output.scrollHeight;
           });
+
         navigator.system.addEventListener("onconnect", function(display) {
             var output = document.getElementById("event");
             var outputmsg = "Display connect.\n";
@@ -110,6 +112,7 @@
             output.value += outputmsg;
             output.scrollTop = output.scrollHeight;
           });
+
         navigator.system.addEventListener("ondisconnect", function(display) {
             var output = document.getElementById("event");
             var outputmsg = "Display disconnect.\n";
@@ -130,7 +133,7 @@
   <div class="cpu">
     <p class="subtitle center">CPUInfo</p>
     <p class="text" id="cpu">TEST</p>
-    <p class="text" id="cpu_then">TEST</p>
+    <p class="text" id="cpu_chain">TEST</p>
     <p class="text" id="cpu_animate">TEST</p>
   </div>
   <div class="memory">
@@ -140,15 +143,15 @@
   </div>
   <div class="display">
     <p class="subtitle center">DisplayInfo</p>
-    <textarea id="display"></textarea>
+    <textarea id="display" readonly=true></textarea>
   </div>
   <div class="storage">
     <p class="subtitle center">Storage</p>
-    <textarea id="storage"></textarea>
+    <textarea id="storage" readonly=true></textarea>
   </div>
   <div class="event">
     <p class="subtitle center">Event</p>
-    <textarea id="event"></textarea>
+    <textarea id="event" readonly=true></textarea>
   </div>
   </body>
 </html>
