@@ -132,15 +132,13 @@ extension.setMessageListener(function(json) {
     return;
   }
 
-  var promise_id = msg._promise_id;
-  delete msg._promise_id;
   if (msg.data.error) {
-    _promises[promise_id].reject(msg.data.error);
+    _promises[msg._promise_id].reject(msg.data.error);
   } else {
-    _promises[promise_id].fulfill(_createConstClone(msg.data)); 
+    _promises[msg._promise_id].fulfill(_createConstClone(msg.data)); 
   }
 
-  delete _promises[promise_id];
+  delete _promises[msg._promise_id];
 });
 
 var _hasListener = function(eventName) {
