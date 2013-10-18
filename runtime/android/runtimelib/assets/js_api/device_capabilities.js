@@ -1,6 +1,12 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+//
+// The Promise code are modified from https://gist.github.com/unscriptable/814052
+// with original copyright and license as below.
+//
+// (c) copyright unscriptable.com / John Hann
+// License MIT
 
 var _promises = {};
 var _next_promise_id = 0;
@@ -40,13 +46,14 @@ Promise.prototype = {
 };
 
 var postMessage = function(msg) {
-  var promise_id = _next_promise_id;
+  var p = new Promise();
+
+  _promises[_next_promise_id] = p;
+  msg._promise_id = _next_promise_id.toString();
   _next_promise_id += 1;
-  var promiseGet = new Promise();
-  _promises[promise_id] = promiseGet;
-  msg._promise_id = promise_id.toString();
+
   extension.postMessage(JSON.stringify(msg));
-  return promiseGet;
+  return p;
 };
 
 exports.getCPUInfo = function() {
@@ -112,6 +119,7 @@ extension.setMessageListener(function(json) {
     console.log("Error: " + msg.error);
     return;
   }
+
   if (msg.reply == 'attachStorage' ||
       msg.reply == 'detachStorage' ||
       msg.reply == 'connectDisplay' ||
@@ -123,14 +131,15 @@ extension.setMessageListener(function(json) {
     }
     return;
   }
+
   var promise_id = msg._promise_id;
   delete msg._promise_id;
   if (msg.data.error) {
     _promises[promise_id].reject(msg.data.error);
-    delete _promises[promise_id];
-    return;
+  } else {
+    _promises[promise_id].fulfill(_createConstClone(msg.data)); 
   }
-  _promises[promise_id].fulfill(_createConstClone(msg.data)); 
+
   delete _promises[promise_id];
 });
 
