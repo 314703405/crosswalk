@@ -14,7 +14,6 @@
     .display { background-color: #CAE1FF; }
     .memory { background-color: #FFF0F5; }
     .storage { background-color: #F0FFF0; }
-    .codecs { background-color: #FFE4B5; }
     .event { background-color: #D1D1D1; }
   </style>
   <body>
@@ -86,29 +85,6 @@
               output.scrollTop = output.scrollHeight;
             },
             Error);
-        navigator.system.getCodecsInfo().then(
-            function(codecs) {
-              var msg = "AudioCodecs:\n";
-              for (var i = 0; i < codecs.audioCodecs.length; ++i) {
-                var prop = Object.getOwnPropertyNames(codecs.audioCodecs[i]);
-                for (var j = 0; j < prop.length; ++j) {
-                  msg += prop[j] + ": " + codecs.audioCodecs[i][prop[j]] + "\n";
-                }
-                msg += "---------\n";
-              }
-              msg += "VideoCodecs:\n";
-              for (var i = 0; i < codecs.videoCodecs.length; ++i) {
-                var prop = Object.getOwnPropertyNames(codecs.videoCodecs[i]);
-                for (var j = 0; j < prop.length; ++j) {
-                  msg += prop[j] + ": " + codecs.videoCodecs[i][prop[j]] + "\n";
-                }
-                msg += "---------\n";
-              }
-              var output = document.getElementById("codecs");
-              output.value += msg;
-              output.scrollTop = output.scrollHeight;
-            },
-            Error);
         onattach_num = 0;
         navigator.system.addEventListener("onattach", function(storage) {
             onattach_num += 1;
@@ -169,10 +145,6 @@
   <div class="storage">
     <p class="subtitle center">Storage</p>
     <textarea id="storage"></textarea>
-  </div>
-  <div class="codecs">
-    <p class="subtitle center">Codecs</p>
-    <textarea id="codecs"></textarea>
   </div>
   <div class="event">
     <p class="subtitle center">Event</p>

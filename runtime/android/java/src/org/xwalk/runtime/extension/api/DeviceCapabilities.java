@@ -19,7 +19,6 @@ public class DeviceCapabilities extends XWalkExtension {
     private static final String TAG = "DeviceCapabilities";
 
     private DeviceCapabilitiesCPU mCPU = new DeviceCapabilitiesCPU();
-    private DeviceCapabilitiesCodecs mCodecs = new DeviceCapabilitiesCodecs();
     private DeviceCapabilitiesDisplay mDisplay = new DeviceCapabilitiesDisplay(this);
     private DeviceCapabilitiesMemory mMemory = new DeviceCapabilitiesMemory();
     private DeviceCapabilitiesStorage mStorage = new DeviceCapabilitiesStorage(this);
@@ -51,8 +50,6 @@ public class DeviceCapabilities extends XWalkExtension {
             JSONObject jsonOutput = new JSONObject();
             if (cmd.equals("getCPUInfo")) {
                 jsonOutput.put("data", mCPU.getInfo());
-            } else if (cmd.equals("getCodecsInfo")) {
-                jsonOutput.put("data", mCodecs.getInfo());
             } else if (cmd.equals("getDisplayInfo")) {
                 jsonOutput.put("data", mDisplay.getInfo());
             } else if (cmd.equals("getMemoryInfo")) {

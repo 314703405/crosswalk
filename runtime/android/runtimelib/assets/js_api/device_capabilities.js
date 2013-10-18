@@ -56,13 +56,6 @@ exports.getCPUInfo = function() {
   return postMessage(msg);
 };
 
-exports.getCodecsInfo = function() {
-  var msg = {
-    'cmd': 'getCodecsInfo'
-  };
-  return postMessage(msg);
-};
-
 exports.getDisplayInfo = function() {
   var msg = {
     'cmd': 'getDisplayInfo'
