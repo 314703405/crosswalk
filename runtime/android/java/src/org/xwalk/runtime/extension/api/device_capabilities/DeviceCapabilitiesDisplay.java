@@ -13,11 +13,10 @@ import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,91 +27,46 @@ public class DeviceCapabilitiesDisplay {
 
     private DeviceCapabilities mDeviceCapabilities;
 
-    private Context mContext;
     private DisplayManager mDisplayManager;
-    private XWalkExtensionContext mExtensionContext;
 
-    private boolean mIsRegisteredOnConnect = false;
-    private boolean mIsRegisteredOnDisconnect = false;
-
-    class DisplayInfo {
-        private boolean mIsInternal;
-        private boolean mIsPrimary;
-        private int mDpiX;
-        private int mDpiY;
-        private long mAvailableHeight;
-        private long mAvailableWidth;
-        private long mHeight;
-        private long mWidth;
-        private String mDisplayId;
-        private String mDisplayName;
-
-        public DisplayInfo(boolean isInternal, boolean isPrimary, int dpiX, int dpiY,
-                           long availableHeight, long availableWidth, long height,
-                           long width, String displayId, String displayName) {
-            mIsInternal = isInternal;
-            mIsPrimary = isPrimary;
-            mDpiX = dpiX;
-            mDpiY = dpiY;
-            mAvailableHeight = availableHeight;
-            mAvailableWidth = availableWidth;
-            mHeight = height;
-            mWidth = width;
-            mDisplayId = displayId;
-            mDisplayName = displayName;
-        }
-    }
-
-    private Map<String, DisplayInfo> mDisplays = new HashMap<String, DisplayInfo>();
+    private boolean mIsListening = false;
     private final Handler mHandler = new Handler();
 
-    private final DisplayListener mOnConnectListener = new DisplayListener() {
-        @Override
-        public void onDisplayAdded(int displayId) {
-            updateInfo();
-            JSONObject outputObject = new JSONObject();
-            JSONObject displayObject = getDisplayById(String.valueOf(displayId));
-            try {
-                outputObject.put("reply", "connectDisplay");
-                outputObject.put("eventName", "onconnect");
-                outputObject.put("data", displayObject);
-            } catch (JSONException e) {
-                mDeviceCapabilities.printErrorMessage(e);
-            }
-            mDeviceCapabilities.broadcastMessage(outputObject.toString());
-        }
-        @Override
-        public void onDisplayChanged(int arg0) {
-        }
-        @Override
-        public void onDisplayRemoved(int displayId) {
-            if (!mIsRegisteredOnDisconnect)
-                updateInfo();
-        }
-    };
+    // Holds all available displays connected to the system.
+    private final SparseArray<Display> mDisplayList = new SparseArray<Display>();
 
-    private final DisplayListener mOnDisconnectListener = new DisplayListener() {
+    /**
+     * Listens for the display arrival and removal.
+     *
+     * We rely on onDisplayAdded/onDisplayRemoved callback to trigger the display
+     * availability change event.
+     *
+     * Note the display id is a system-wide unique number for each physical connection.
+     * It means that for the same display device, the display id assigned by the system
+     * would be different if it is re-connected again.
+     */
+    private final DisplayListener mDisplayListener = new DisplayListener() {
         @Override
         public void onDisplayAdded(int displayId) {
-            if (!mIsRegisteredOnConnect)
-                updateInfo();
+            // Broadcast and add the added display to JavaScript
+            notifyAndSaveConnectedDisplay(mDisplayManager.getDisplay(displayId));
         }
+
         @Override
         public void onDisplayChanged(int arg0) {
         }
+
         @Override
         public void onDisplayRemoved(int displayId) {
-            JSONObject outputObject = new JSONObject();
-            JSONObject displayObject = getDisplayById(String.valueOf(displayId));
-            updateInfo();
-            try {
-                outputObject.put("reply", "disconnectDisplay");
-                outputObject.put("eventName", "ondisconnect");
-                outputObject.put("data", displayObject);
-            } catch (JSONException e) {
-                mDeviceCapabilities.printErrorMessage(e);
+            Display d = mDisplayList.get(displayId);
+
+            // Do nothing if the display does not exsit on cache.
+            if (d == null) {
+                return;
             }
-            mDeviceCapabilities.broadcastMessage(outputObject.toString());
+
+            // Broadcast and remove the added display to JavaScript
+            notifyAndRemoveDisconnectedDisplay(d);
         }
     };
 
@@ -121,118 +75,140 @@ public class DeviceCapabilitiesDisplay {
     }
 
     public void setExtensionContext(XWalkExtensionContext context) {
-        mExtensionContext = context;
+        mDisplayManager =
+                (DisplayManager) context.getContext().getSystemService(Context.DISPLAY_SERVICE);
+
+        // Fetch the original display list
+        initDisplayList();
     }
 
     public JSONObject getInfo() {
         JSONObject outputObject = new JSONObject();
         JSONArray outputArray = new JSONArray();
 
-        updateInfo();
         try {
-            Iterator<String> iter = mDisplays.keySet().iterator();
-            while (iter.hasNext()) {
-                JSONObject displayObject = getDisplayById(iter.next());
-                outputArray.put(displayObject);
+            for(int i = 0; i < mDisplayList.size(); i++) {
+                outputArray.put(convertDisplayToJSON(mDisplayList.valueAt(i)));
             }
             outputObject.put("displays", outputArray);
         } catch (JSONException e) {
             return setErrorMessage(e.toString());
         }
+
         return outputObject;
     }
 
-    public JSONObject getDisplayById(String displayId) {
-        DisplayInfo displayInfo = mDisplays.get(displayId);
-        JSONObject retObject = new JSONObject();
+    public JSONObject convertDisplayToJSON(Display d) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        d.getRealMetrics(displayMetrics);
 
+        Point realSize = new Point();
+        d.getRealSize(realSize);
+
+        Point availSize = new Point();
+        d.getSize(availSize);
+
+        JSONObject o = new JSONObject();
         try {
-            retObject.put("id", displayInfo.mDisplayId);
-            retObject.put("name", displayInfo.mDisplayName);
-            retObject.put("isPrimary", displayInfo.mIsPrimary);
-            retObject.put("isInternal", displayInfo.mIsInternal);
-            retObject.put("dpiX", displayInfo.mDpiX);
-            retObject.put("dpiY", displayInfo.mDpiY);
-            retObject.put("width", displayInfo.mWidth);
-            retObject.put("height", displayInfo.mHeight);
-            retObject.put("availWidth", displayInfo.mAvailableWidth);
-            retObject.put("availHeight", displayInfo.mAvailableHeight);
+            o.put("id", d.getDisplayId());
+            o.put("name", d.getName());
+            o.put("isPrimary", d.getDisplayId() == d.DEFAULT_DISPLAY);
+            o.put("isInternal", d.getDisplayId() == d.DEFAULT_DISPLAY);
+            o.put("dpiX", (int) displayMetrics.xdpi);
+            o.put("dpiY", (int) displayMetrics.ydpi);
+            o.put("width", realSize.x);
+            o.put("height", realSize.y);
+            o.put("availWidth", availSize.x);
+            o.put("availHeight", availSize.y);
         } catch (JSONException e) {
             return setErrorMessage(e.toString());
         }
-        return retObject;
+        return o;
     }
 
-    private void updateInfo() {
-        mContext = mExtensionContext.getContext();
-        mDisplayManager =
-                (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
-        Display[] dispArr = mDisplayManager.getDisplays();
+    private void initDisplayList() {
+        Display[] displays = mDisplayManager.getDisplays();
 
-        mDisplays.clear();
-        for (Display display : dispArr) {
-            String displayId = String.valueOf(display.getDisplayId());
-            String displayName = display.getName();
-            boolean isPrimary;
-            boolean isInternal;
-            if (displayId.equals(String.valueOf(display.DEFAULT_DISPLAY))) {
-                isPrimary = true;
-                isInternal = true;
+        for (Display d : displays) {
+            mDisplayList.put(d.getDisplayId(), d);
+        }
+    }
+
+    private void notifyAndSaveConnectedDisplay(Display d) {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("reply", "connectDisplay");
+            o.put("eventName", "onconnect");
+            o.put("data", convertDisplayToJSON(d));
+        } catch (JSONException e) {
+            mDeviceCapabilities.printErrorMessage(e);
+        }
+
+        mDeviceCapabilities.broadcastMessage(o.toString());
+        mDisplayList.put(d.getDisplayId(), d);
+    }
+
+    private void notifyAndRemoveDisconnectedDisplay(Display d) {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("reply", "disconnectDisplay");
+            o.put("eventName", "ondisconnect");
+            o.put("data", convertDisplayToJSON(d));
+        } catch (JSONException e) {
+            mDeviceCapabilities.printErrorMessage(e);
+        }
+
+        mDeviceCapabilities.broadcastMessage(o.toString());
+        mDisplayList.remove(d.getDisplayId());
+    }
+
+    public void registerListener() {
+        if(mIsListening) {
+            return;
+        }
+
+        mIsListening = true;
+        mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
+    }
+
+    public void unregisterListener() {
+        if(!mIsListening) {
+            return;
+        }
+
+        mIsListening = false;
+        mDisplayManager.unregisterDisplayListener(mDisplayListener);
+    }
+
+    public void onResume() {
+        Display[] displays = mDisplayManager.getDisplays();
+
+        // Firstly, check whether display in latest list is in cached display list.
+        // If not found, then send out "onconnect" message and insert to cache.
+        // If found, only update the display object without sending message.
+        for (Display d : displays) {
+            Display foundDisplay = mDisplayList.get(d.getDisplayId());
+            if (foundDisplay == null) {
+                notifyAndSaveConnectedDisplay(d);
             } else {
-                isPrimary = false;
-                isInternal = false;
+                mDisplayList.put(d.getDisplayId(), d);
             }
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            display.getRealMetrics(displayMetrics);
-            int dpiX = (int) displayMetrics.xdpi;
-            int dpiY = (int) displayMetrics.ydpi;
-            Point outSize = new Point();
-            display.getRealSize(outSize);
-            int width = outSize.x;
-            int height = outSize.y;
-            display.getSize(outSize);
-            int availableWidth = outSize.x;
-            int availableHeight = outSize.y;
-            DisplayInfo newDisplay = new DisplayInfo(isInternal, isPrimary, dpiX,
-                    dpiY, availableHeight, availableWidth, height, width, displayId,
-                    displayName);
-            mDisplays.put(displayId, newDisplay);
         }
-    }
 
-    public void registerOnConnectListener() {
-        mContext = mExtensionContext.getContext();
-        mDisplayManager =
-                (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
-        if (!mIsRegisteredOnDisconnect)
-            updateInfo();
-        if (!mIsRegisteredOnConnect) {
-            mDisplayManager.registerDisplayListener(mOnConnectListener, mHandler);
-            mIsRegisteredOnConnect = true;
-        }
-    }
+        // Secondly, remove those displays that only in cache.
+        for(int i = 0; i < mDisplayList.size(); i++) {
+            boolean found = false;
+            for (Display d : displays) {
+                if (mDisplayList.valueAt(i).getDisplayId() == d.getDisplayId()) {
+                    found = true;
+                    break;
+                }
+            }
 
-    public void registerOnDisonnectListener() {
-        mContext = mExtensionContext.getContext();
-        mDisplayManager =
-                (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
-        if (!mIsRegisteredOnConnect)
-            updateInfo();
-        if (!mIsRegisteredOnDisconnect) {
-            mDisplayManager.registerDisplayListener(mOnDisconnectListener, mHandler);
-            mIsRegisteredOnDisconnect = true;
+            if (!found) {
+                notifyAndRemoveDisconnectedDisplay(mDisplayList.valueAt(i));
+            }
         }
-    }
-
-    public void unregisterListeners() {
-        if (mIsRegisteredOnConnect) {
-            mDisplayManager.unregisterDisplayListener(mOnConnectListener);
-        }
-        if (mIsRegisteredOnDisconnect) {
-            mDisplayManager.unregisterDisplayListener(mOnDisconnectListener);
-        }
-        mIsRegisteredOnConnect = false;
-        mIsRegisteredOnDisconnect = false;
     }
 
     private JSONObject setErrorMessage(String error) {

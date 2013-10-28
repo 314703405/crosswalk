@@ -33,6 +33,8 @@ public class DeviceCapabilities extends XWalkExtension {
         try {
             JSONObject jsonInput = new JSONObject(message);
             String cmd = jsonInput.getString("cmd");
+
+            //FIXME(halton): Add support to remove handler
             if (cmd.equals("addEventListener")) {
                 String eventName = jsonInput.getString("eventName");
                 handleAddEventListener(eventName);
@@ -69,10 +71,8 @@ public class DeviceCapabilities extends XWalkExtension {
             mStorage.registerOnAttachListener();
         } else if (eventName.equals("ondetach")) {
             mStorage.registerOnDetachListener();
-        } else if (eventName.equals("onconnect")) {
-            mDisplay.registerOnConnectListener();
-        } else if (eventName.equals("ondisconnect")) {
-            mDisplay.registerOnDisonnectListener();
+        } else if (eventName.equals("onconnect") || eventName.equals("ondisconnect")) {
+            mDisplay.registerListener();
         }
     }
 
@@ -88,8 +88,17 @@ public class DeviceCapabilities extends XWalkExtension {
     }
 
     @Override
+    public void onResume() {
+        mDisplay.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        mDisplay.unregisterListener();
+        mStorage.unregisterListener();
+    }
+
+    @Override
     public void onDestroy() {
-        mDisplay.unregisterListeners();
-        mStorage.unregisterListeners();
     }
 }

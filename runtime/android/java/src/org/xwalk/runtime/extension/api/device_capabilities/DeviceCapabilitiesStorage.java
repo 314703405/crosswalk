@@ -132,7 +132,7 @@ public class DeviceCapabilitiesStorage {
         }
     }
 
-    public void unregisterListeners() {
+    public void unregisterListener() {
         if (mIsRegisteredOnAttach) {
             mExtensionContext.getActivity().unregisterReceiver(mOnAttachListener);
         }
