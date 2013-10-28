@@ -90,6 +90,7 @@ public class DeviceCapabilities extends XWalkExtension {
     @Override
     public void onResume() {
         mDisplay.onResume();
+        mStorage.onResume();
     }
 
     @Override

@@ -45,7 +45,7 @@ public class DeviceCapabilitiesStorage {
                 try {
                     sdCardObject.put("reply", "attachStorage");
                     sdCardObject.put("eventName", "onattach");
-                    sdCardObject.put("data", "attach"); // Attach signal.
+                    sdCardObject.put("data", getExternalStorageAsJSON());
                 } catch (JSONException e) {
                     mDeviceCapabilities.printErrorMessage(e);
                 }
@@ -65,7 +65,7 @@ public class DeviceCapabilitiesStorage {
                 try {
                     sdCardObject.put("reply", "detachStorage");
                     sdCardObject.put("eventName", "ondetach");
-                    sdCardObject.put("data", "detach"); // Detach signal.
+                    sdCardObject.put("data", getExternalStorageAsJSON());
                 } catch (JSONException e) {
                     mDeviceCapabilities.printErrorMessage(e);
                 }
@@ -88,32 +88,51 @@ public class DeviceCapabilitiesStorage {
         JSONArray outputArray = new JSONArray();
         try {
             if (getStorageInfo()) {
-                JSONObject internalObject = new JSONObject();
-                internalObject.put("id", 1);
-                internalObject.put("name", "Internal");
-                internalObject.put("type", "fixed");
-                internalObject.put("capacity", mInternalInfo[0]);
-                internalObject.put("availCapacity", mInternalInfo[1]);
-                outputArray.put(internalObject);
-
-                // FIXME(guanxian): Assuming there is only one SDCard.
-                JSONObject sdCardObject = new JSONObject();
-                sdCardObject.put("id", 2);
-                sdCardObject.put("name", "SDCard");
-                if (Environment.isExternalStorageRemovable()) {
-                    sdCardObject.put("type", "removable");
-                } else {
-                    sdCardObject.put("type", "fixed");
-                }
-                sdCardObject.put("capacity", mSDCardInfo[0]);
-                sdCardObject.put("availCapacity", mSDCardInfo[1]);
-                outputArray.put(sdCardObject);
+                outputArray.put(getInternalStorageAsJSON());
+                outputArray.put(getExternalStorageAsJSON());
             }
             outputObject.put("storages", outputArray);
         } catch (JSONException e) {
             return setErrorMessage(e.toString());
         }
         return outputObject;
+    }
+
+    private JSONObject getInternalStorageAsJSON() {
+        JSONObject o = new JSONObject();
+
+        try {
+            o.put("id", 1);
+            o.put("name", "Internal");
+            o.put("type", "fixed");
+            o.put("capacity", mInternalInfo[0]);
+            o.put("availCapacity", mInternalInfo[1]);
+        } catch (JSONException e) {
+            return setErrorMessage(e.toString());
+        }
+        
+        return o;
+    }
+
+    private JSONObject getExternalStorageAsJSON() {
+        // FIXME(guanxian): Assuming there is only one SDCard.
+        JSONObject o = new JSONObject();
+
+        try {
+            o.put("id", 2);
+            o.put("name", "SDCard");
+            if (Environment.isExternalStorageRemovable()) {
+                o.put("type", "removable");
+            } else {
+                o.put("type", "fixed");
+            }
+            o.put("capacity", mSDCardInfo[0]);
+            o.put("availCapacity", mSDCardInfo[1]);
+        } catch (JSONException e) {
+            return setErrorMessage(e.toString());
+        }
+        
+        return o;
     }
 
     public void registerOnAttachListener() {
@@ -174,6 +193,10 @@ public class DeviceCapabilitiesStorage {
         mIntentFilter.addAction(Intent.ACTION_MEDIA_SCANNER_STARTED);
         mIntentFilter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
         mIntentFilter.addDataScheme("file");
+    }
+
+    public void onResume() {
+        // FIXME(guanxian): Update external storage after resume.
     }
 
     private JSONObject setErrorMessage(String error) {
