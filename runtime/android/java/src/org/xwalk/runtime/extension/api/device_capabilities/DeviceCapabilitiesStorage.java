@@ -4,8 +4,6 @@
 
 package org.xwalk.runtime.extension.api.device_capabilities;
 
-import org.xwalk.runtime.extension.XWalkExtensionContext;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +15,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xwalk.runtime.extension.XWalkExtensionContext;
 
 import java.io.File;
 

@@ -28,7 +28,7 @@ public class DeviceCapabilities extends XWalkExtension {
 
         mCPU = new DeviceCapabilitiesCPU();
         mDisplay = new DeviceCapabilitiesDisplay(this, context);
-        mMemory = new DeviceCapabilitiesMemory();
+        mMemory = new DeviceCapabilitiesMemory(context);
         mStorage = new DeviceCapabilitiesStorage(this, context);
     }
 

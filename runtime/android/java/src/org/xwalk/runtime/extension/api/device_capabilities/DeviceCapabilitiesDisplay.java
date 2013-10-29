@@ -4,8 +4,6 @@
 
 package org.xwalk.runtime.extension.api.device_capabilities;
 
-import org.xwalk.runtime.extension.XWalkExtensionContext;
-
 import android.content.Context;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
@@ -21,6 +19,8 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import org.xwalk.runtime.extension.XWalkExtensionContext;
 
 public class DeviceCapabilitiesDisplay {
     private static final String TAG = "DeviceCapabilitiesDisplay";
