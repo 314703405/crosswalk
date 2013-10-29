@@ -35,16 +35,6 @@ public class DeviceCapabilitiesDisplay {
     // Holds all available displays connected to the system.
     private final SparseArray<Display> mDisplayList = new SparseArray<Display>();
 
-    /**
-     * Listens for the display arrival and removal.
-     *
-     * We rely on onDisplayAdded/onDisplayRemoved callback to trigger the display
-     * availability change event.
-     *
-     * Note the display id is a system-wide unique number for each physical connection.
-     * It means that for the same display device, the display id assigned by the system
-     * would be different if it is re-connected again.
-     */
     private final DisplayListener mDisplayListener = new DisplayListener() {
         @Override
         public void onDisplayAdded(int displayId) {

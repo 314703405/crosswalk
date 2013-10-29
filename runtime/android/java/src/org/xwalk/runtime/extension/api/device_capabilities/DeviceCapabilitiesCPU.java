@@ -89,7 +89,11 @@ public class DeviceCapabilitiesCPU {
                           + Long.parseLong(arrs[5]) + Long.parseLong(arrs[6])
                           + Long.parseLong(arrs[7]) + Long.parseLong(arrs[8]);
 
-            mCPULoad = (double) (used2 - used1) / (total2 - total1);
+            if (total2 == total1) {
+                mCPULoad = 0.0;
+            } else {
+                mCPULoad = (double) (used2 - used1) / (total2 - total1);
+            }
         } catch (IOException e) {
             mCPULoad = 0.0;
             return false;
