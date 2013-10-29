@@ -70,10 +70,8 @@ public class DeviceCapabilities extends XWalkExtension {
     }
 
     private void handleAddEventListener(String eventName) {
-        if (eventName.equals("onattach")) {
-            mStorage.registerOnAttachListener();
-        } else if (eventName.equals("ondetach")) {
-            mStorage.registerOnDetachListener();
+        if (eventName.equals("onattach") || eventName.equals("ondetach")) {
+            mStorage.registerListener();
         } else if (eventName.equals("onconnect") || eventName.equals("ondisconnect")) {
             mDisplay.registerListener();
         }

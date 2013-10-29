@@ -81,19 +81,19 @@ public class DeviceCapabilitiesDisplay {
     }
 
     public JSONObject getInfo() {
-        JSONObject outputObject = new JSONObject();
-        JSONArray outputArray = new JSONArray();
+        JSONObject o= new JSONObject();
+        JSONArray arr = new JSONArray();
 
         try {
             for(int i = 0; i < mDisplayList.size(); i++) {
-                outputArray.put(convertDisplayToJSON(mDisplayList.valueAt(i)));
+                arr.put(convertDisplayToJSON(mDisplayList.valueAt(i)));
             }
-            outputObject.put("displays", outputArray);
+            o.put("displays", arr);
         } catch (JSONException e) {
             return setErrorMessage(e.toString());
         }
 
-        return outputObject;
+        return o;
     }
 
     public JSONObject convertDisplayToJSON(Display d) {
