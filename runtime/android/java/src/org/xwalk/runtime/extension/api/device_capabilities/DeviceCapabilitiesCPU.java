@@ -6,134 +6,90 @@ package org.xwalk.runtime.extension.api.device_capabilities;
 
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DeviceCapabilitiesCPU {
-    public static final int SYSTEM_INFO_STAT_FILE_SIZE = 1024;
-    public static final String SYSTEM_INFO_CPU_DIR = "/sys/devices/system/cpu/";
-    public static final String SYSTEM_INFO_CPUINFO_FILE = "/proc/cpuinfo";
     public static final String SYSTEM_INFO_STAT_FILE = "/proc/stat";
 
     private static final String TAG = "DeviceCapabilitiesCPU";
 
-    private BufferedReader mBufferedReader;
-    private FileReader mFileReader;
-    private FileInputStream mFileInputStream;
-    private InputStreamReader mInputStreamReader;
-
-    private double mCPULoad = 0.0;
     private int mCoreNum = 0;
-    private long mOldCPUTotal = 0;
-    private long mOldCPUUsed = 0;
-    private String mCPUArch = "";
+    private String mCPUArch = "Unknown";
+    private double mCPULoad = 0.0;
 
     public DeviceCapabilitiesCPU() {
-        getCPULoad();
+        getCPUArch();
+        getCPUCoreNumber();
     }
 
     public JSONObject getInfo() {
-        JSONObject outputObject = new JSONObject();
-        if (getCPUCoreNumber() && getCPUArch() && getCPULoad()) {
+        JSONObject o = new JSONObject();
+        if (getCPULoad()) {
             try {
-                outputObject.put("numOfProcessors", mCoreNum);
-                outputObject.put("archName", mCPUArch);
-                outputObject.put("load", mCPULoad);
+                o.put("numOfProcessors", mCoreNum);
+                o.put("archName", mCPUArch);
+                o.put("load", mCPULoad);
             } catch (JSONException e) {
                 return setErrorMessage(e.toString());
             }
         } else {
             try {
-                outputObject.put("numOfProcessors", 0);
-                outputObject.put("archName", "");
-                outputObject.put("load", 0.0);
+                o.put("numOfProcessors", 0);
+                o.put("archName", "Unknown");
+                o.put("load", 0.0);
             } catch (JSONException e) {
                 return setErrorMessage(e.toString());
             }
         }
-        return outputObject;
+        return o;
     }
 
-    private boolean getCPUCoreNumber() {
-        class CoreFilter implements FileFilter {
-            @Override
-            public boolean accept(File pathname) {
-                if (Pattern.matches("cpu[0-9]", pathname.getName())) {
-                    return true;
-                }
-                return false;
-            }
-        }
-        File cpuInfoDir = new File(SYSTEM_INFO_CPU_DIR);
-        File[] coreFiles = cpuInfoDir.listFiles(new CoreFilter());
-        mCoreNum = coreFiles.length;
-        return true;
+    private void getCPUCoreNumber() {
+        mCoreNum = Runtime.getRuntime().availableProcessors();
     }
 
-    private boolean getCPUArch() {
-        try {
-            mFileReader = new FileReader(SYSTEM_INFO_CPUINFO_FILE);
-            mBufferedReader = new BufferedReader(mFileReader);
-
-            mCPUArch = "";
-            String readLine = "";
-            while ((readLine = mBufferedReader.readLine()) != null) {
-                String[] lineArray = readLine.split(":\\s+", 2);
-                if (lineArray[0].contains("model name")) {
-                    mCPUArch = lineArray[1];
-                    break;
-                }
-            }
-            if (mCPUArch.isEmpty()) {
-                mCPUArch = "Unknown";
-            }
-        } catch (IOException e) {
-            mCPUArch = "Unknown";
-            return false;
-        }
-        return true;
+    private void getCPUArch() {
+        mCPUArch = System.getProperty("os.arch");
     }
 
     /**
      * The algorithm here can be found at:
-     * http://stackoverflow.com/questions/3017162
-     * /how-to-get-total-cpu-usage-in-linux-c
-     *
-     * The process is:
-     * work_over_period = work_jiffies_2 - work_jiffies_1
-     * total_over_period = total_jiffies_2 - total_jiffies_1
-     * cpu_load = work_over_period / total_over_period
+     * http://stackoverflow.com/questions/3017162/how-to-get-total-cpu-usage-in-linux-c
      */
     private boolean getCPULoad() {
         try {
-            mFileInputStream = new FileInputStream(SYSTEM_INFO_STAT_FILE);
-            mInputStreamReader = new InputStreamReader(mFileInputStream);
-            mBufferedReader = new BufferedReader(mInputStreamReader,
-                    SYSTEM_INFO_STAT_FILE_SIZE);
-            String[] cpuInfoArray = mBufferedReader.readLine().split(" ");
-            mBufferedReader.close();
+            RandomAccessFile r = new RandomAccessFile(SYSTEM_INFO_STAT_FILE, "r");
+            String l = r.readLine();
 
-            long curCPUUsed = Long.parseLong(cpuInfoArray[2])
-                              + Long.parseLong(cpuInfoArray[3])
-                              + Long.parseLong(cpuInfoArray[4]);
-            long curCPUTotal = curCPUUsed
-                               + Long.parseLong(cpuInfoArray[5])
-                               + Long.parseLong(cpuInfoArray[6])
-                               + Long.parseLong(cpuInfoArray[7])
-                               + Long.parseLong(cpuInfoArray[8]);
-            mCPULoad = (double) (curCPUUsed - mOldCPUUsed)
-                       / (curCPUTotal- mOldCPUTotal);
-            mOldCPUUsed = curCPUUsed;
-            mOldCPUTotal = curCPUTotal;
+            String[] arrs = l.split(" ");
+            long used1 = Long.parseLong(arrs[2]) + Long.parseLong(arrs[3])
+                         + Long.parseLong(arrs[4]);
+            long total1 = used1
+                          + Long.parseLong(arrs[5]) + Long.parseLong(arrs[6])
+                          + Long.parseLong(arrs[7]) + Long.parseLong(arrs[8]);
+            try {
+                Thread.sleep(360);
+            } catch (Exception e) {
+                mCPULoad = 0.0;
+                return false;
+            }
+
+            r.seek(0);
+            l = r.readLine();
+            r.close();
+
+            arrs = l.split(" ");
+            long used2 = Long.parseLong(arrs[2]) + Long.parseLong(arrs[3])
+                         + Long.parseLong(arrs[4]);
+            long total2 = used1
+                          + Long.parseLong(arrs[5]) + Long.parseLong(arrs[6])
+                          + Long.parseLong(arrs[7]) + Long.parseLong(arrs[8]);
+
+            mCPULoad = (double) (used2 - used1) / (total2 - total1);
         } catch (IOException e) {
             mCPULoad = 0.0;
             return false;

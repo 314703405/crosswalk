@@ -138,12 +138,12 @@ public class DeviceCapabilitiesDisplay {
             o.put("reply", "connectDisplay");
             o.put("eventName", "onconnect");
             o.put("data", convertDisplayToJSON(d));
+
+            mDeviceCapabilities.broadcastMessage(o.toString());
+            mDisplayList.put(d.getDisplayId(), d);
         } catch (JSONException e) {
             mDeviceCapabilities.printErrorMessage(e);
         }
-
-        mDeviceCapabilities.broadcastMessage(o.toString());
-        mDisplayList.put(d.getDisplayId(), d);
     }
 
     private void notifyAndRemoveDisconnectedDisplay(Display d) {
@@ -152,12 +152,12 @@ public class DeviceCapabilitiesDisplay {
             o.put("reply", "disconnectDisplay");
             o.put("eventName", "ondisconnect");
             o.put("data", convertDisplayToJSON(d));
+
+            mDeviceCapabilities.broadcastMessage(o.toString());
+            mDisplayList.remove(d.getDisplayId());
         } catch (JSONException e) {
             mDeviceCapabilities.printErrorMessage(e);
         }
-
-        mDeviceCapabilities.broadcastMessage(o.toString());
-        mDisplayList.remove(d.getDisplayId());
     }
 
     public void registerListener() {
