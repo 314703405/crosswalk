@@ -11,49 +11,40 @@ import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xwalk.runtime.extension.XWalkExtensionContext;
 
 public class DeviceCapabilitiesCPU {
-    public static final String SYSTEM_INFO_STAT_FILE = "/proc/stat";
-
+    private static final String SYSTEM_INFO_STAT_FILE = "/proc/stat";
     private static final String TAG = "DeviceCapabilitiesCPU";
+
+    private DeviceCapabilities mDeviceCapabilities;
 
     private int mCoreNum = 0;
     private String mCPUArch = "Unknown";
     private double mCPULoad = 0.0;
 
-    public DeviceCapabilitiesCPU() {
-        getCPUArch();
-        getCPUCoreNumber();
+    public DeviceCapabilitiesCPU(DeviceCapabilities instance,
+                                 XWalkExtensionContext context) {
+        mDeviceCapabilities = instance;
+
+        // Get arch and core number at constructor since they won't change time to time.
+        mCoreNum = Runtime.getRuntime().availableProcessors();
+        mCPUArch = System.getProperty("os.arch");
     }
 
     public JSONObject getInfo() {
+        getCPULoad();
+
         JSONObject o = new JSONObject();
-        if (getCPULoad()) {
-            try {
-                o.put("numOfProcessors", mCoreNum);
-                o.put("archName", mCPUArch);
-                o.put("load", mCPULoad);
-            } catch (JSONException e) {
-                return setErrorMessage(e.toString());
-            }
-        } else {
-            try {
-                o.put("numOfProcessors", 0);
-                o.put("archName", "Unknown");
-                o.put("load", 0.0);
-            } catch (JSONException e) {
-                return setErrorMessage(e.toString());
-            }
+        try {
+            o.put("numOfProcessors", mCoreNum);
+            o.put("archName", mCPUArch);
+            o.put("load", mCPULoad);
+        } catch (JSONException e) {
+            return mDeviceCapabilities.setErrorMessage(e.toString());
         }
+
         return o;
-    }
-
-    private void getCPUCoreNumber() {
-        mCoreNum = Runtime.getRuntime().availableProcessors();
-    }
-
-    private void getCPUArch() {
-        mCPUArch = System.getProperty("os.arch");
     }
 
     /**
@@ -99,15 +90,5 @@ public class DeviceCapabilitiesCPU {
             return false;
         }
         return true;
-    }
-
-    private JSONObject setErrorMessage(String error) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("error", error);
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-        }
-        return jsonObject;
     }
 }

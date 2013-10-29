@@ -26,9 +26,9 @@ public class DeviceCapabilities extends XWalkExtension {
     public DeviceCapabilities(String jsApiContent, XWalkExtensionContext context) {
         super(NAME, jsApiContent, context);
 
-        mCPU = new DeviceCapabilitiesCPU();
+        mCPU = new DeviceCapabilitiesCPU(this, context);
         mDisplay = new DeviceCapabilitiesDisplay(this, context);
-        mMemory = new DeviceCapabilitiesMemory(context);
+        mMemory = new DeviceCapabilitiesMemory(this, context);
         mStorage = new DeviceCapabilitiesStorage(this, context);
     }
 
@@ -79,6 +79,16 @@ public class DeviceCapabilities extends XWalkExtension {
 
     protected void printErrorMessage(JSONException e) {
         Log.e(TAG, e.toString());
+    }
+
+    protected JSONObject setErrorMessage(String error) {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("error", error);
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+        }
+        return o;
     }
 
     @Override

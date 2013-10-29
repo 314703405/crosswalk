@@ -13,27 +13,25 @@ import android.os.StatFs;
 import android.util.Log;
 import android.util.SparseArray;
 
+import java.io.File;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
-
 import org.xwalk.runtime.extension.XWalkExtensionContext;
 
 public class DeviceCapabilitiesStorage {
     private static final String TAG = "DeviceCapabilitiesStorage";
+
     private DeviceCapabilities mDeviceCapabilities;
     private XWalkExtensionContext mExtensionContext;
 
     private static int mStorageCount = 0;
-
-    private boolean mIsListening = false;
-
-    private IntentFilter mIntentFilter = new IntentFilter();
-
     // Holds all available storages.
     private final SparseArray<StorageUnit> mStorageList = new SparseArray<StorageUnit>();
+
+    private boolean mIsListening = false;
+    private IntentFilter mIntentFilter = new IntentFilter();
 
     class StorageUnit {
         private int mId;
@@ -103,7 +101,7 @@ public class DeviceCapabilitiesStorage {
                 o.put("capacity", mCapacity);
                 o.put("availCapacity", mAvailCapacity);
             } catch (JSONException e) {
-                return setErrorMessage(e.toString());
+                return mDeviceCapabilities.setErrorMessage(e.toString());
             }
 
             return o;
@@ -131,9 +129,10 @@ public class DeviceCapabilitiesStorage {
         mDeviceCapabilities = instance;
         mExtensionContext = context;
 
+        registerIntentFilter();
+
         // Fetch the original storage list
         initStorageList();
-        registerIntentFilter();
     }
 
     public JSONObject getInfo() {
@@ -145,7 +144,7 @@ public class DeviceCapabilitiesStorage {
             }
             o.put("storages", arr);
         } catch (JSONException e) {
-            return setErrorMessage(e.toString());
+            return mDeviceCapabilities.setErrorMessage(e.toString());
         }
 
         return o;
@@ -275,15 +274,5 @@ public class DeviceCapabilitiesStorage {
 
         // Secondly, attmpt to add a possible external storage and send "onattached" event.
         notifyAndSaveAttachedStorage();
-    }
-
-    private JSONObject setErrorMessage(String error) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("error", error);
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-        }
-        return jsonObject;
     }
 }

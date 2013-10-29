@@ -16,12 +16,15 @@ import org.xwalk.runtime.extension.XWalkExtensionContext;
 public class DeviceCapabilitiesMemory {
     private static final String TAG = "DeviceCapabilitiesMemory";
 
+    private DeviceCapabilities mDeviceCapabilities;
     private Context mContext;
 
     private long mAvailableCapacity = 0;
     private long mCapacity = 0;
 
-    public DeviceCapabilitiesMemory(XWalkExtensionContext context) {
+    public DeviceCapabilitiesMemory(DeviceCapabilities instance,
+                                    XWalkExtensionContext context) {
+        mDeviceCapabilities = instance;
         mContext = context.getContext();
     }
 
@@ -33,7 +36,7 @@ public class DeviceCapabilitiesMemory {
             o.put("capacity", mCapacity);
             o.put("availCapacity", mAvailableCapacity);
         } catch (JSONException e) {
-            return setErrorMessage(e.toString());
+            return mDeviceCapabilities.setErrorMessage(e.toString());
         }
 
         return o;
@@ -46,15 +49,5 @@ public class DeviceCapabilitiesMemory {
 
         mCapacity = mi.totalMem / 1024;
         mAvailableCapacity = mi.availMem / 1024;
-    }
-
-    private JSONObject setErrorMessage(String error) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("error", error);
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-        }
-        return jsonObject;
     }
 }

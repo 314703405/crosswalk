@@ -14,26 +14,22 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
 
-import java.util.ArrayList;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import org.xwalk.runtime.extension.XWalkExtensionContext;
 
 public class DeviceCapabilitiesDisplay {
     private static final String TAG = "DeviceCapabilitiesDisplay";
 
     private DeviceCapabilities mDeviceCapabilities;
-
     private DisplayManager mDisplayManager;
-
-    private boolean mIsListening = false;
-    private final Handler mHandler = new Handler();
 
     // Holds all available displays connected to the system.
     private final SparseArray<Display> mDisplayList = new SparseArray<Display>();
+
+    private boolean mIsListening = false;
+    private final Handler mHandler = new Handler();
 
     private final DisplayListener mDisplayListener = new DisplayListener() {
         @Override
@@ -80,7 +76,7 @@ public class DeviceCapabilitiesDisplay {
             }
             o.put("displays", arr);
         } catch (JSONException e) {
-            return setErrorMessage(e.toString());
+            return mDeviceCapabilities.setErrorMessage(e.toString());
         }
 
         return o;
@@ -109,7 +105,7 @@ public class DeviceCapabilitiesDisplay {
             o.put("availWidth", availSize.x);
             o.put("availHeight", availSize.y);
         } catch (JSONException e) {
-            return setErrorMessage(e.toString());
+            return mDeviceCapabilities.setErrorMessage(e.toString());
         }
         return o;
     }
@@ -197,15 +193,5 @@ public class DeviceCapabilitiesDisplay {
                 notifyAndRemoveDisconnectedDisplay(mDisplayList.valueAt(i));
             }
         }
-    }
-
-    private JSONObject setErrorMessage(String error) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("error", error);
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-        }
-        return jsonObject;
     }
 }
