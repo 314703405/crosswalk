@@ -120,8 +120,6 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
 #endif
 
-  // Always use fixed layout and viewport tag.
-  command_line->AppendSwitch(switches::kEnableFixedLayout);
   command_line->AppendSwitch(xswitches::kEnableViewport);
 
   command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
