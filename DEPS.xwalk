@@ -6,13 +6,12 @@
 # Usually it's major.minor.build.patch
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
-chromium_version = '31.0.1650.12'
-chromium_crosswalk_point = '14c6a7b04b3301598d457a79fc3229985695e5a0'
-blink_crosswalk_point = '293e75f05d1753b2c33e42e9414aff1e8e2d6165'
+chromium_version = '32.0.1700.4'
+chromium_crosswalk_point = '5fe3dcba0051b6cf369cfe02ee9e9eceb759db2e'
+blink_crosswalk_point = '7469e4bfc594017d012025af2ce0cf1301664608'
 deps_xwalk = {
-  'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
-  'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
+  'src': 'ssh://git@github.com/halton/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
+  'src/third_party/WebKit': 'ssh://git@github.com/halton/blink-crosswalk.git@%s' % blink_crosswalk_point,
 }
 vars_xwalk = {
-  'jsoncpp': 'http://svn.code.sf.net/p/jsoncpp/code',
 }
