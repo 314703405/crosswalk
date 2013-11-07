@@ -25,8 +25,6 @@ using base::android::ConvertJavaStringToUTF16;
 using base::android::ConvertUTF16ToJavaString;
 using base::android::ConvertUTF8ToJavaString;
 using base::android::GetClass;
-using base::android::GetFieldID;
-using base::android::GetMethodIDFromClassName;
 using base::android::ScopedJavaLocalRef;
 
 namespace xwalk {
@@ -39,50 +37,10 @@ struct XWalkSettings::FieldIds {
   FieldIds() { }
 
   explicit FieldIds(JNIEnv* env) {
-    const char* kStringClassName = "Ljava/lang/String;";
-
     // FIXME: we should be using a new GetFieldIDFromClassName() with caching.
     ScopedJavaLocalRef<jclass> clazz(
         GetClass(env, "org/xwalk/core/XWalkSettings"));
-    load_images_automatically =
-        GetFieldID(env, clazz, "mLoadsImagesAutomatically", "Z");
-    images_enabled =
-        GetFieldID(env, clazz, "mImagesEnabled", "Z");
-    java_script_enabled =
-        GetFieldID(env, clazz, "mJavaScriptEnabled", "Z");
-    allow_universal_access_from_file_urls =
-        GetFieldID(env, clazz, "mAllowUniversalAccessFromFileURLs", "Z");
-    allow_file_access_from_file_urls =
-        GetFieldID(env, clazz, "mAllowFileAccessFromFileURLs", "Z");
-    java_script_can_open_windows_automatically =
-        GetFieldID(env, clazz, "mJavaScriptCanOpenWindowsAutomatically", "Z");
-    support_multiple_windows =
-        GetFieldID(env, clazz, "mSupportMultipleWindows", "Z");
-    dom_storage_enabled =
-        GetFieldID(env, clazz, "mDomStorageEnabled", "Z");
-    database_enabled =
-        GetFieldID(env, clazz, "mDatabaseEnabled", "Z");
-    use_wide_viewport =
-        GetFieldID(env, clazz, "mUseWideViewport", "Z");
-    media_playback_requires_user_gesture =
-        GetFieldID(env, clazz, "mMediaPlaybackRequiresUserGesture", "Z");
-    default_video_poster_url =
-        GetFieldID(env, clazz, "mDefaultVideoPosterURL", kStringClassName);
   }
-
-  // Field ids
-  jfieldID load_images_automatically;
-  jfieldID images_enabled;
-  jfieldID java_script_enabled;
-  jfieldID allow_universal_access_from_file_urls;
-  jfieldID allow_file_access_from_file_urls;
-  jfieldID java_script_can_open_windows_automatically;
-  jfieldID support_multiple_windows;
-  jfieldID dom_storage_enabled;
-  jfieldID database_enabled;
-  jfieldID use_wide_viewport;
-  jfieldID media_playback_requires_user_gesture;
-  jfieldID default_video_poster_url;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env, jobject obj)
@@ -139,48 +97,19 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   if (!render_view_host) return;
   WebPreferences prefs = render_view_host->GetWebkitPreferences();
 
-  prefs.loads_images_automatically =
-      env->GetBooleanField(obj, field_ids_->load_images_automatically);
-
-  prefs.images_enabled =
-      env->GetBooleanField(obj, field_ids_->images_enabled);
-
-  prefs.javascript_enabled =
-      env->GetBooleanField(obj, field_ids_->java_script_enabled);
-
-  prefs.allow_universal_access_from_file_urls = env->GetBooleanField(
-      obj, field_ids_->allow_universal_access_from_file_urls);
-
-  prefs.allow_file_access_from_file_urls = env->GetBooleanField(
-      obj, field_ids_->allow_file_access_from_file_urls);
-
-  prefs.javascript_can_open_windows_automatically = env->GetBooleanField(
-      obj, field_ids_->java_script_can_open_windows_automatically);
-
-  prefs.supports_multiple_windows = env->GetBooleanField(
-      obj, field_ids_->support_multiple_windows);
-
+  prefs.loads_images_automatically = true;
+  prefs.images_enabled = true;
+  prefs.javascript_enabled = true;
+  prefs.allow_universal_access_from_file_urls = true;
+  prefs.allow_file_access_from_file_urls = true;
+  prefs.javascript_can_open_windows_automatically = true;
+  prefs.supports_multiple_windows = false;
   prefs.application_cache_enabled =
       Java_XWalkSettings_getAppCacheEnabled(env, obj);
-
-  prefs.local_storage_enabled = env->GetBooleanField(
-      obj, field_ids_->dom_storage_enabled);
-
-  prefs.databases_enabled = env->GetBooleanField(
-      obj, field_ids_->database_enabled);
-
-  prefs.double_tap_to_zoom_enabled = prefs.use_wide_viewport =
-      env->GetBooleanField(obj, field_ids_->use_wide_viewport);
-
-  prefs.user_gesture_required_for_media_playback = env->GetBooleanField(
-      obj, field_ids_->media_playback_requires_user_gesture);
-
-  ScopedJavaLocalRef<jstring> str;
-  str.Reset(
-      env, static_cast<jstring>(
-          env->GetObjectField(obj, field_ids_->default_video_poster_url)));
-  prefs.default_video_poster_url = str.obj() ?
-      GURL(ConvertJavaStringToUTF8(str)) : GURL();
+  prefs.local_storage_enabled = true;
+  prefs.databases_enabled = true;
+  prefs.double_tap_to_zoom_enabled = true;
+  prefs.user_gesture_required_for_media_playback = true;
 
   render_view_host->UpdateWebkitPreferences(prefs);
 }
