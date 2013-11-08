@@ -1,0 +1,40 @@
+From a2ecd4625c7e917315c7085aa03e476bcec96f1f Mon Sep 17 00:00:00 2001
+From: Halton Huo <halton.huo@intel.com>
+Date: Fri, 8 Nov 2013 15:04:37 +0800
+Subject: [PATCH] Chromium: Do not look for gtk2 when using aura
+
+Since there is no GTK+2 package for Tizen 2.1 Mobile and we already use
+Aura
+instead of GTK+2 directly, there should be no need to look for GTK+2 at
+all.
+
+Upstreaming this patch depends on a hard GTK+2 dependency on
+remoting/remoting.gyp being removed in chromium. It does not affect
+crosswalk
+because we do not have any dependency on remoting.gyp.
+
+Upstream patch: https://codereview.chromium.org/19531008
+Depends on:
+https://code.google.com/p/chromium/issues/detail?id=247213
+
+Author: Raphael Kubo da Costa <raphael.kubo.da.costa@intel.com>
+---
+ build/linux/system.gyp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build/linux/system.gyp b/build/linux/system.gyp
+index 4a7e857..97db939 100644
+--- a/build/linux/system.gyp
++++ b/build/linux/system.gyp
+@@ -29,7 +29,7 @@
+         'use_system_ssl%': 1,
+       },
+     }],
+-    [ 'chromeos==0', {
++    [ 'chromeos==0 and toolkit_uses_gtk==1', {
+       # Hide GTK and related dependencies for Chrome OS, so they won't get
+       # added back to Chrome OS. Don't try to use GTK on Chrome OS.
+       'targets': [
+-- 
+1.8.1.2
+
