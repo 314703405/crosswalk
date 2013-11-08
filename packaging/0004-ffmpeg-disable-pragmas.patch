@@ -5,11 +5,11 @@ Tizen 2.x platform have gcc version 4.5 which breaks compilation of new ffmpeg.
 Break is caused by pragmas that are used inside functions. This patch modifies
 configuration of ffmpeg (chromium/linux/ia32) and disables pragmas.
 
-diff --git src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.asm src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.asm
-index b5fc20a..1d46271 100644
---- src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.asm
-+++ src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.asm
-@@ -223,7 +223,7 @@
+Index: chromium/config/Chromium/linux/ia32/config.asm
+===================================================================
+--- chromium/config/Chromium/linux/ia32/config.asm	(revision 232187)
++++ chromium/config/Chromium/linux/ia32/config.asm	(working copy)
+@@ -225,7 +225,7 @@
  %define HAVE_POD2MAN 1
  %define HAVE_POLL_H 1
  %define HAVE_POSIX_MEMALIGN 1
@@ -18,11 +18,11 @@ index b5fc20a..1d46271 100644
  %define HAVE_PTHREAD_CANCEL 1
  %define HAVE_RDTSC 0
  %define HAVE_RSYNC_CONTIMEOUT 1
-diff --git src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.h src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.h
-index b8ee823..1e35b3b 100644
---- src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.h
-+++ src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.h
-@@ -236,7 +236,7 @@
+Index: chromium/config/Chromium/linux/ia32/config.h
+===================================================================
+--- chromium/config/Chromium/linux/ia32/config.h	(revision 232187)
++++ chromium/config/Chromium/linux/ia32/config.h	(working copy)
+@@ -238,7 +238,7 @@
  #define HAVE_POD2MAN 1
  #define HAVE_POLL_H 1
  #define HAVE_POSIX_MEMALIGN 1
@@ -31,6 +31,3 @@ index b8ee823..1e35b3b 100644
  #define HAVE_PTHREAD_CANCEL 1
  #define HAVE_RDTSC 0
  #define HAVE_RSYNC_CONTIMEOUT 1
--- 
-1.7.9.5
-

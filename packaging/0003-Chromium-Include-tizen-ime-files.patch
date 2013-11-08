@@ -1,12 +1,23 @@
-Author: Alexander Shalamov <alexander.shalamov@intel.com>
+From 3cb5dd178049cf586a24fa05516148c24db7df70 Mon Sep 17 00:00:00 2001
+From: Halton Huo <halton.huo@intel.com>
+Date: Fri, 8 Nov 2013 15:09:20 +0800
+Subject: [PATCH] Chromium: Include tizen ime files
+
 This patch includes Tizen specific IME files when into chromium
 IME module when Tizen crosswalk packages are built.
 
-diff --git src/build/linux/system.gyp src/build/linux/system.gyp
-index 867553f..ea9705f 100644
---- src/build/linux/system.gyp
-+++ src/build/linux/system.gyp
-@@ -832,5 +832,26 @@
+Author: Alexander Shalamov <alexander.shalamov@intel.com>
+---
+ build/linux/system.gyp              | 21 +++++++++++++++++++++
+ ui/base/ime/ime.gypi                | 14 ++++++++++++++
+ ui/base/ime/input_method_factory.cc |  4 ++++
+ 3 files changed, 39 insertions(+)
+
+diff --git a/build/linux/system.gyp b/build/linux/system.gyp
+index 97db939..0ab5121 100644
+--- a/build/linux/system.gyp
++++ b/build/linux/system.gyp
+@@ -892,5 +892,26 @@
          }],
        ],
      },
@@ -33,12 +44,12 @@ index 867553f..ea9705f 100644
 +    },
    ],
  }
-diff --git src/ui/base/ime/ime.gypi src/ui/base/ime/ime.gypi
-index 5f2adc1..b420fa7 100644
---- src/ui/base/ime/ime.gypi
-+++ src/ui/base/ime/ime.gypi
-@@ -84,5 +84,19 @@
-         'input_method_tsf.h',
+diff --git a/ui/base/ime/ime.gypi b/ui/base/ime/ime.gypi
+index 785e977..e473043 100644
+--- a/ui/base/ime/ime.gypi
++++ b/ui/base/ime/ime.gypi
+@@ -106,5 +106,19 @@
+         'composition_text_util_pango.h',
        ],
      }],
 +    ['tizen_mobile == 1', {
@@ -57,28 +68,28 @@ index 5f2adc1..b420fa7 100644
 +    }],
    ],
  }
-diff --git src/ui/base/ime/input_method_factory.cc src/ui/base/ime/input_method_factory.cc
-index 018823f..066784d 100644
---- src/ui/base/ime/input_method_factory.cc
-+++ src/ui/base/ime/input_method_factory.cc
+diff --git a/ui/base/ime/input_method_factory.cc b/ui/base/ime/input_method_factory.cc
+index 03bd5e4..06e8cff 100644
+--- a/ui/base/ime/input_method_factory.cc
++++ b/ui/base/ime/input_method_factory.cc
 @@ -13,6 +13,8 @@
  #include "base/win/metro.h"
  #include "ui/base/ime/input_method_imm32.h"
  #include "ui/base/ime/input_method_tsf.h"
 +#elif defined(OS_TIZEN_MOBILE)
 +#include "xwalk/ime/tizen-scim/input_method_scim.h"
+ #elif defined(USE_AURA) && defined(USE_X11)
+ #include "ui/base/ime/input_method_linux_x11.h"
  #else
- #include "ui/base/ime/fake_input_method.h"
- #endif
-@@ -45,6 +47,8 @@ InputMethod* CreateInputMethod(internal::InputMethodDelegate* delegate,
+@@ -47,6 +49,8 @@ InputMethod* CreateInputMethod(internal::InputMethodDelegate* delegate,
    return new InputMethodIBus(delegate);
  #elif defined(OS_WIN)
    return CreateInputMethodWinInternal(delegate, widget);
 +#elif defined(OS_TIZEN_MOBILE)
 +  return new InputMethodSCIM(delegate);
+ #elif defined(USE_AURA) && defined(USE_X11)
+   return new InputMethodLinuxX11(delegate);
  #else
-   return new FakeInputMethod(delegate);
- #endif
 -- 
-1.7.9.5
+1.8.1.2
 
