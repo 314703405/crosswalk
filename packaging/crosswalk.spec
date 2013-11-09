@@ -23,6 +23,7 @@ BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
 BuildRequires:  libasound-devel
+BuildRequires:  libcap-devel
 BuildRequires:  pkgmgr-info-parser-devel
 BuildRequires:  python
 BuildRequires:  python-xml
@@ -39,6 +40,7 @@ BuildRequires:  pkgconfig(freetype2)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(icu-i18n)
+BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(libpci)
 BuildRequires:  pkgconfig(libpulse)
