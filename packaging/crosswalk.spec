@@ -15,7 +15,9 @@ Source1004:     install_into_pkginfo_db.py
 Patch1:         0001-Chromium-Do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         0002-Chromium-Look-for-pvr-libGLESv2.so.patch
 Patch3:         0003-Chromium-Include-tizen-ime-files.patch
-Patch4:         0004-ffmpeg-disable-pragmas.patch
+Patch4:         0004-Chromium-Fix-gcc-4.5.3-uninitialized-warnings.patch
+Patch5:         0005-ffmpeg-disable-pragmas.patch
+Patch6:         0006-WebKit-Fix-gcc-4.5.3-uninitialized-warnings.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -100,7 +102,9 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 patch -p1 --directory ./src < %{PATCH1}
 patch -p1 --directory ./src < %{PATCH2}
 patch -p1 --directory ./src < %{PATCH3}
-patch -p0 --directory ./src/third_party/ffmpeg < %{PATCH4}
+patch -p1 --directory ./src < %{PATCH4}
+patch -p0 --directory ./src/third_party/ffmpeg < %{PATCH5}
+patch -p1 --directory ./src/third_party/WebKit < %{PATCH6}
 
 %build
 
