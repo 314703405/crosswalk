@@ -110,6 +110,7 @@ export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 # Use openssl instead of nss, until Tizen gets nss >= 3.14.3
 export GYP_GENERATORS='make'
 ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
+--no-parallel \
 -Ddisable_nacl=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
