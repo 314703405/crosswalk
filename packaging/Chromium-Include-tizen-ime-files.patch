@@ -1,22 +1,21 @@
-From 3cb5dd178049cf586a24fa05516148c24db7df70 Mon Sep 17 00:00:00 2001
+From 56e4286c1ea1f5b5da3949f9371e5a244d530d66 Mon Sep 17 00:00:00 2001
 From: Halton Huo <halton.huo@intel.com>
-Date: Fri, 8 Nov 2013 15:09:20 +0800
-Subject: [PATCH] Chromium: Include tizen ime files
-
-This patch includes Tizen specific IME files when into chromium
-IME module when Tizen crosswalk packages are built.
+Date: Tue, 19 Nov 2013 01:59:47 +0800
+Subject: [PATCH 3/6] Chromium: Include tizen ime files.
 
 Author: Alexander Shalamov <alexander.shalamov@intel.com>
+This patch includes Tizen specific IME files when into chromium
+IME module when Tizen crosswalk packages are built.
 ---
- build/linux/system.gyp              | 21 +++++++++++++++++++++
- ui/base/ime/ime.gypi                | 14 ++++++++++++++
- ui/base/ime/input_method_factory.cc |  4 ++++
+ src/build/linux/system.gyp              | 21 +++++++++++++++++++++
+ src/ui/base/ime/ime.gypi                | 14 ++++++++++++++
+ src/ui/base/ime/input_method_factory.cc |  4 ++++
  3 files changed, 39 insertions(+)
 
-diff --git a/build/linux/system.gyp b/build/linux/system.gyp
+diff --git a/src/build/linux/system.gyp b/src/build/linux/system.gyp
 index 97db939..0ab5121 100644
---- a/build/linux/system.gyp
-+++ b/build/linux/system.gyp
+--- a/src/build/linux/system.gyp
++++ b/src/build/linux/system.gyp
 @@ -892,5 +892,26 @@
          }],
        ],
@@ -44,10 +43,10 @@ index 97db939..0ab5121 100644
 +    },
    ],
  }
-diff --git a/ui/base/ime/ime.gypi b/ui/base/ime/ime.gypi
+diff --git a/src/ui/base/ime/ime.gypi b/src/ui/base/ime/ime.gypi
 index 785e977..e473043 100644
---- a/ui/base/ime/ime.gypi
-+++ b/ui/base/ime/ime.gypi
+--- a/src/ui/base/ime/ime.gypi
++++ b/src/ui/base/ime/ime.gypi
 @@ -106,5 +106,19 @@
          'composition_text_util_pango.h',
        ],
@@ -68,10 +67,10 @@ index 785e977..e473043 100644
 +    }],
    ],
  }
-diff --git a/ui/base/ime/input_method_factory.cc b/ui/base/ime/input_method_factory.cc
+diff --git a/src/ui/base/ime/input_method_factory.cc b/src/ui/base/ime/input_method_factory.cc
 index 03bd5e4..06e8cff 100644
---- a/ui/base/ime/input_method_factory.cc
-+++ b/ui/base/ime/input_method_factory.cc
+--- a/src/ui/base/ime/input_method_factory.cc
++++ b/src/ui/base/ime/input_method_factory.cc
 @@ -13,6 +13,8 @@
  #include "base/win/metro.h"
  #include "ui/base/ime/input_method_imm32.h"

@@ -1,28 +1,28 @@
-From a2ecd4625c7e917315c7085aa03e476bcec96f1f Mon Sep 17 00:00:00 2001
+From f7b5cd2cd6c9ecc193ca3f64134861e44b0f7029 Mon Sep 17 00:00:00 2001
 From: Halton Huo <halton.huo@intel.com>
-Date: Fri, 8 Nov 2013 15:04:37 +0800
-Subject: [PATCH] Chromium: Do not look for gtk2 when using aura
+Date: Tue, 19 Nov 2013 01:55:17 +0800
+Subject: [PATCH 1/6] Chromium: Do not look for gtk2 when using aura.
+
+Author: Raphael Kubo da Costa <raphael.kubo.da.costa@intel.com>
 
 Since there is no GTK+2 package for Tizen 2.1 Mobile and we already use Aura
 instead of GTK+2 directly, there should be no need to look for GTK+2 at all.
 
 Upstreaming this patch depends on a hard GTK+2 dependency on
-remoting/remoting.gyp being removed in chromium. It does not affect crosswalk
-because we do not have any dependency on remoting.gyp.
+remoting/remoting.gyp being removed in chromium. It does not affect
+crosswalk because we do not have any dependency on remoting.gyp.
 
 Upstream patch: https://codereview.chromium.org/19531008
 Depends on:
 https://code.google.com/p/chromium/issues/detail?id=247213
-
-Author: Raphael Kubo da Costa <raphael.kubo.da.costa@intel.com>
 ---
- build/linux/system.gyp | 2 +-
+ src/build/linux/system.gyp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/build/linux/system.gyp b/build/linux/system.gyp
+diff --git a/src/build/linux/system.gyp b/src/build/linux/system.gyp
 index 4a7e857..97db939 100644
---- a/build/linux/system.gyp
-+++ b/build/linux/system.gyp
+--- a/src/build/linux/system.gyp
++++ b/src/build/linux/system.gyp
 @@ -29,7 +29,7 @@
          'use_system_ssl%': 1,
        },

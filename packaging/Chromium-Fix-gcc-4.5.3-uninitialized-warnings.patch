@@ -1,16 +1,18 @@
-From 9d8c4b4e426085e901373ecbcdb399712972e02f Mon Sep 17 00:00:00 2001
+From a6a6f17f53802010e326fe91d9125061f9677d0a Mon Sep 17 00:00:00 2001
 From: Halton Huo <halton.huo@intel.com>
-Date: Tue, 12 Nov 2013 14:15:44 +0800
-Subject: [PATCH] Chromium: Fix gcc 4.5.3 uninitialized warnings
+Date: Tue, 19 Nov 2013 02:01:02 +0800
+Subject: [PATCH 4/6] Chromium: Fix gcc 4.5.3 uninitialized warnings
 
+Upstream does not have that issue.
+Author: Halton Huo <halton.huo@intel.com>
 ---
- content/renderer/pepper/resource_converter.cc | 2 +-
+ src/content/renderer/pepper/resource_converter.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/content/renderer/pepper/resource_converter.cc b/content/renderer/pepper/resource_converter.cc
+diff --git a/src/content/renderer/pepper/resource_converter.cc b/src/content/renderer/pepper/resource_converter.cc
 index e9a0c77..b6698a5 100644
---- a/content/renderer/pepper/resource_converter.cc
-+++ b/content/renderer/pepper/resource_converter.cc
+--- a/src/content/renderer/pepper/resource_converter.cc
++++ b/src/content/renderer/pepper/resource_converter.cc
 @@ -115,7 +115,7 @@ bool ResourceConverterImpl::FromV8Value(v8::Handle<v8::Object> val,
    WebKit::WebDOMFileSystem dom_file_system =
        WebKit::WebDOMFileSystem::fromV8Value(val);
