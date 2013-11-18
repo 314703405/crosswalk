@@ -114,6 +114,8 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 
 # Use openssl instead of nss, until Tizen gets nss >= 3.14.3
+# --no-parallel is added because chroot does not mount a /dev/shm, this will
+# cause python multiprocessing.SemLock error.
 export GYP_GENERATORS='make'
 ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
 --no-parallel \
