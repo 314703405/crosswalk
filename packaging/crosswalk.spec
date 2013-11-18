@@ -17,7 +17,7 @@ Patch2:         0002-Chromium-Look-for-pvr-libGLESv2.so.patch
 Patch3:         0003-Chromium-Include-tizen-ime-files.patch
 Patch4:         0004-Chromium-Fix-gcc-4.5.3-uninitialized-warnings.patch
 Patch5:         0005-ffmpeg-disable-pragmas.patch
-Patch6:         0006-WebKit-Fix-gcc-4.5.3-uninitialized-warnings.patch
+Patch6:         0006-Blink-Fix-gcc-4.5.3-uninitialized-warnings.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
