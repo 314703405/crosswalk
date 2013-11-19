@@ -21,7 +21,7 @@ index ae7cebf..9726377 100644
 -    RefPtr<DocumentFragment> fragment = startOfParagraphToMove != endOfParagraphToMove ?
 -        createFragmentFromMarkup(document(), createMarkup(range.get(), 0, DoNotAnnotateForInterchange, true, DoNotResolveURLs, constrainingAncestor), "") : 0;
 +    RefPtr<DocumentFragment> fragment = 0;
-+    if(startOfParagraphToMove != endOfParagraphToMove) {
++    if (startOfParagraphToMove != endOfParagraphToMove) {
 +        fragment = createFragmentFromMarkup(document(), createMarkup(range.get(), 0, DoNotAnnotateForInterchange, true, DoNotResolveURLs, constrainingAncestor), ""); 
 +    }
  
