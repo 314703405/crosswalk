@@ -12,11 +12,11 @@ Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Source1004:     install_into_pkginfo_db.py
-Patch1:         Chromium-Do-not-look-for-gtk2-when-using-aura.patch
-Patch2:         Chromium-Look-for-pvr-libGLESv2.so.patch
-Patch3:         Chromium-Include-tizen-ime-files.patch
-Patch4:         Chromium-Fix-gcc-4.5.3-uninitialized-warnings.patch
-Patch5:         ffmpeg-disable-pragmas.patch
+Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
+Patch2:         %{name}-look-for-pvr-libGLESv2.so.patch
+Patch3:         %{name}-include-tizen-ime-files.patch
+Patch4:         %{name}-disable-ffmpeg-pragmas.patch
+Patch5:         Chromium-Fix-gcc-4.5.3-uninitialized-warnings.patch
 Patch6:         Blink-Fix-gcc-4.5.3-uninitialized-warnings.patch
 
 BuildRequires:  bison
@@ -99,10 +99,10 @@ cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/AUTHORS AUTHORS.xwalk
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+%patch1
+%patch2
+%patch3
+%patch4
 %patch5 -p1
 %patch6 -p1
 

@@ -1,22 +1,11 @@
-From 572f413f784fe589afcf8aee4b1e2fc7e4a57d8f Mon Sep 17 00:00:00 2001
-From: Halton Huo <halton.huo@intel.com>
-Date: Tue, 19 Nov 2013 01:57:54 +0800
-Subject: [PATCH 2/6] Chromium: Look for pvr libGLESv2.so
-
 Author: Raphael Kubo da Costa <raphael.kubo.da.costa@intel.com>
 
 The PowerVR GL implementation used in Tizen Mobile 2.1 installs libGLESv2.so.1,
 not .2. Adjust the library being looked for, otherwise the detection will fail.
 
 Not upstreamable.
----
- src/ui/gl/gl_implementation_x11.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/src/ui/gl/gl_implementation_x11.cc b/src/ui/gl/gl_implementation_x11.cc
-index 01ee655..edc7c39 100644
---- a/src/ui/gl/gl_implementation_x11.cc
-+++ b/src/ui/gl/gl_implementation_x11.cc
+--- src/ui/gl/gl_implementation_x11.cc
++++ src/ui/gl/gl_implementation_x11.cc
 @@ -92,7 +92,7 @@ bool InitializeGLBindings(GLImplementation implementation) {
        break;
      }
@@ -26,6 +15,3 @@ index 01ee655..edc7c39 100644
        if (!gles_library)
          return false;
        base::NativeLibrary egl_library = LoadLibrary("libEGL.so.1");
--- 
-1.8.1.2
-
