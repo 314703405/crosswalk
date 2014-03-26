@@ -333,6 +333,20 @@
             ['exclude', '_aura\\.cc$'],
           ],
         }],
+        ['disable_nacl==0', {
+          'sources': [
+            'runtime/browser/nacl_host/nacl_browser_delegate_impl.cc',
+            'runtime/browser/nacl_host/nacl_browser_delegate_impl.h',
+            'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.cc',
+            'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h',
+          ],
+          'dependencies': [
+            '../components/nacl.gyp:nacl',
+            '../components/nacl.gyp:nacl_browser',
+            '../components/nacl.gyp:nacl_common',
+            '../components/nacl.gyp:nacl_renderer',
+          ],
+        }],
       ],
     },
     {

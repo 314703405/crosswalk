@@ -64,6 +64,23 @@ bool GetXWalkDataPath(base::FilePath* path) {
   return true;
 }
 
+bool GetInternalPluginsDirectory(base::FilePath* result) {
+#if defined(OS_MACOSX) && !defined(OS_IOS)
+  // If called from Chrome, get internal plugins from a subdirectory of the
+  // framework.
+  if (base::mac::AmIBundled()) {
+    *result = chrome::GetFrameworkBundlePath();
+    DCHECK(!result->empty());
+    *result = result->Append("Internet Plug-Ins");
+    return true;
+  }
+  // In tests, just look in the module directory (below).
+#endif
+
+  // The rest of the world expects plugins in the module directory.
+  return PathService::Get(base::DIR_MODULE, result);
+}
+
 }  // namespace
 
 bool PathProvider(int key, base::FilePath* path) {
@@ -71,6 +88,34 @@ bool PathProvider(int key, base::FilePath* path) {
   switch (key) {
     case xwalk::DIR_DATA_PATH:
       return GetXWalkDataPath(path);
+      break;
+    case xwalk::DIR_INTERNAL_PLUGINS:
+      if (!GetInternalPluginsDirectory(&cur))
+        return false;
+      break;
+    case xwalk::DIR_PNACL_COMPONENT:
+#if defined(OS_MACOSX)
+      // PNaCl really belongs in the InternalPluginsDirectory but actually
+      // copying it there would result in the files also being shipped, which
+      // we don't want yet. So for now, just find them in the directory where
+      // they get built.
+      if (!PathService::Get(base::DIR_EXE, &cur))
+        return false;
+      if (base::mac::AmIBundled()) {
+        // If we're called from chrome, it's beside the app (outside the
+        // app bundle), if we're called from a unittest, we'll already be
+        // outside the bundle so use the exe dir.
+        // exe_dir gave us .../Chromium.app/Contents/MacOS/Chromium.
+        cur = cur.DirName();
+        cur = cur.DirName();
+        cur = cur.DirName();
+      }
+#else
+      if (!GetInternalPluginsDirectory(&cur))
+        return false;
+#endif
+      cur = cur.Append(FILE_PATH_LITERAL("pnacl"));
+      break;
     case xwalk::DIR_TEST_DATA:
       if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
         return false;
