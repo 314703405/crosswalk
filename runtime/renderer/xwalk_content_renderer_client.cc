@@ -15,6 +15,7 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/renderer/application_native_module.h"
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
+#include "xwalk/runtime/renderer/pepper/pepper_helper.h"
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
@@ -69,6 +70,10 @@ void XWalkContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
 #if defined(OS_ANDROID)
   new XWalkPermissionClient(render_frame);
+#endif
+
+#if defined(ENABLE_PLUGINS)
+  new PepperHelper(render_frame);
 #endif
 }
 

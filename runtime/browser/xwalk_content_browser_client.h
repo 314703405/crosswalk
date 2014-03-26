@@ -113,6 +113,18 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       content::RenderProcessHost* process_host, const GURL& url) OVERRIDE;
 #endif
 
+  virtual void DidCreatePpapiPlugin(
+      content::BrowserPpapiHost* browser_host) OVERRIDE;
+  virtual content::BrowserPpapiHost* GetExternalBrowserPpapiHost(
+      int plugin_process_id) OVERRIDE;
+  virtual bool SupportsBrowserPlugin(content::BrowserContext* browser_context,
+                                     const GURL& site_url) OVERRIDE;
+  virtual bool AllowPepperSocketAPI(
+      content::BrowserContext* browser_context,
+      const GURL& url,
+      bool private_api,
+      const content::SocketPermissionRequest* params) OVERRIDE;
+
 #if defined(OS_ANDROID)
   virtual void ResourceDispatcherHostCreated();
 #endif

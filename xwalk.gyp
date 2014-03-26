@@ -339,12 +339,29 @@
             'runtime/browser/nacl_host/nacl_browser_delegate_impl.h',
             'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.cc',
             'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h',
+            'runtime/renderer/pepper/pepper_helper.cc',
+            'runtime/renderer/pepper/pepper_helper.h',
           ],
           'dependencies': [
             '../components/nacl.gyp:nacl',
             '../components/nacl.gyp:nacl_browser',
             '../components/nacl.gyp:nacl_common',
             '../components/nacl.gyp:nacl_renderer',
+          ],
+        }],
+        ['enable_plugins==1', {
+          'dependencies': [
+            '../ppapi/ppapi_internal.gyp:ppapi_host',
+            '../ppapi/ppapi_internal.gyp:ppapi_proxy',
+            '../ppapi/ppapi_internal.gyp:ppapi_ipc',
+            '../ppapi/ppapi_internal.gyp:ppapi_shared',
+          ],
+        }, {  # enable_plugins==0
+          'sources/': [
+            ['exclude', '^runtime/browser/pepper_'],
+            ['exclude', '^runtime/browser/plugins/'],
+            ['exclude', '^runtime/browser/renderer_host/pepper/'],
+            ['exclude', '^runtime/renderer/pepper/'],
           ],
         }],
       ],

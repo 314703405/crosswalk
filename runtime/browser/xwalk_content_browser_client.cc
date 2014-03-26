@@ -11,17 +11,24 @@
 #include "base/path_service.h"
 #include "base/platform_file.h"
 #include "content/public/browser/browser_main_parts.h"
+#include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
+#include "components/nacl/browser/nacl_browser.h"
+#include "components/nacl/browser/nacl_host_message_filter.h"
+#include "components/nacl/browser/nacl_process_host.h"
+#include "components/nacl/common/nacl_process_type.h"
 #include "net/ssl/ssl_info.h"
 #include "net/url_request/url_request_context_getter.h"
+#include "ppapi/host/ppapi_host.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
+#include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
@@ -272,6 +279,53 @@ void XWalkContentBrowserClient::CancelDesktopNotification(
           render_view_id);
   bridge->CancelNotification(
       notification_id, render_process_id, render_view_id);
+#endif
+}
+
+void XWalkContentBrowserClient::DidCreatePpapiPlugin(
+    content::BrowserPpapiHost* browser_host) {
+#if defined(ENABLE_PLUGINS)
+  browser_host->GetPpapiHost()->AddHostFactoryFilter(
+      scoped_ptr<ppapi::host::HostFactory>(
+          new XWalkBrowserPepperHostFactory(browser_host)));
+#endif
+}
+
+content::BrowserPpapiHost*
+    XWalkContentBrowserClient::GetExternalBrowserPpapiHost(
+        int plugin_process_id) {
+      /*
+  BrowserChildProcessHostIterator iter(PROCESS_TYPE_NACL_LOADER);
+  while (!iter.Done()) {
+    nacl::NaClProcessHost* host = static_cast<nacl::NaClProcessHost*>(
+        iter.GetDelegate());
+    if (host->process() &&
+        host->process()->GetData().id == plugin_process_id) {
+      // Found the plugin.
+      return host->browser_ppapi_host();
+    }
+    ++iter;
+  }
+  */
+  return NULL;
+}
+
+bool XWalkContentBrowserClient::SupportsBrowserPlugin(
+    content::BrowserContext* browser_context, const GURL& site_url) {
+  // TODO(halton): add later
+  return true;
+}
+
+bool XWalkContentBrowserClient::AllowPepperSocketAPI(
+    content::BrowserContext* browser_context,
+    const GURL& url,
+    bool private_api,
+    const content::SocketPermissionRequest* params) {
+#if defined(ENABLE_PLUGINS)
+  // Allow both public and private APIs if the command line says so.
+  return true;
+#else
+  return false;
 #endif
 }
 
