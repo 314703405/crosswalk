@@ -159,6 +159,17 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
+  /*
+#if defined(ENABLE_PLUGINS)
+  host->AddFilter(new PluginInfoMessageFilter(id, profile));
+#endif
+#if !defined(DISABLE_NACL)
+  host->AddFilter(new nacl::NaClHostMessageFilter(
+      id, profile->IsOffTheRecord(),
+      profile->GetPath(),
+      context));
+#endif
+      */
   xwalk_runner_->OnRenderProcessWillLaunch(host);
 }
 

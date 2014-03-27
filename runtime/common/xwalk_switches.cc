@@ -39,4 +39,7 @@ const char kListFeaturesFlags[] = "list-features-flags";
 // Enable all the experimental features in XWalk.
 const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
 
+// Disables the usage of Portable Native Client.
+const char kDisablePnacl[] = "disable-pnacl";
+
 }  // namespace switches

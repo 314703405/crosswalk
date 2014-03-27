@@ -22,6 +22,17 @@ namespace xwalk {
 
 namespace {
 
+// File name of the internal NaCl plugin on different platforms.
+const base::FilePath::CharType kInternalNaClPluginFileName[] =
+#if defined(OS_WIN)
+    FILE_PATH_LITERAL("ppGoogleNaClPluginChrome.dll");
+#elif defined(OS_MACOSX)
+    // TODO(noelallen) Please verify this extention name is correct.
+    FILE_PATH_LITERAL("ppGoogleNaClPluginChrome.plugin");
+#else  // Linux and Chrome OS
+    FILE_PATH_LITERAL("libppGoogleNaClPluginChrome.so");
+#endif
+
 #if defined(OS_LINUX)
 base::FilePath GetConfigPath() {
   scoped_ptr<base::Environment> env(base::Environment::Create());
@@ -93,6 +104,15 @@ bool PathProvider(int key, base::FilePath* path) {
       if (!GetInternalPluginsDirectory(&cur))
         return false;
       break;
+    case xwalk::FILE_NACL_PLUGIN:
+      if (!GetInternalPluginsDirectory(&cur))
+        return false;
+      cur = cur.Append(kInternalNaClPluginFileName);
+      break;
+    // PNaCl is currenly installable via the component updater or by being
+    // simply built-in.  DIR_PNACL_BASE is used as the base directory for
+    // installation via component updater.  DIR_PNACL_COMPONENT will be
+    // the final location of pnacl, which is a subdir of DIR_PNACL_BASE.
     case xwalk::DIR_PNACL_COMPONENT:
 #if defined(OS_MACOSX)
       // PNaCl really belongs in the InternalPluginsDirectory but actually

@@ -6,6 +6,7 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
+#include "components/nacl/renderer/ppb_nacl_private_impl.h"
 #include "content/public/renderer/render_thread.h"
 #include "grit/xwalk_application_resources.h"
 #include "grit/xwalk_sysapps_resources.h"
@@ -112,6 +113,15 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
   module_system->RegisterNativeModule("widget_common",
       extensions::CreateJSModuleFromResource(
           IDR_XWALK_APPLICATION_WIDGET_COMMON_API));
+}
+
+const void* XWalkContentRendererClient::CreatePPAPIInterface(
+    const std::string& interface_name) {
+#if defined(ENABLE_PLUGINS) && !defined(DISABLE_NACL)
+  if (interface_name == PPB_NACL_PRIVATE_INTERFACE)
+    return nacl::GetNaClPrivateInterface();
+#endif
+  return NULL;
 }
 
 #if defined(OS_ANDROID)

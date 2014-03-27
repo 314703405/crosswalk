@@ -347,6 +347,8 @@
             '../components/nacl.gyp:nacl_browser',
             '../components/nacl.gyp:nacl_common',
             '../components/nacl.gyp:nacl_renderer',
+            '../components/nacl.gyp:nacl_helper',
+            '../native_client/src/trusted/service_runtime/linux/nacl_bootstrap.gyp:nacl_helper_bootstrap',
           ],
         }],
         ['enable_plugins==1', {

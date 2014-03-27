@@ -28,6 +28,7 @@ extern const char kListFeaturesFlags[];
 
 extern const char kExperimentalFeatures[];
 
+extern const char kDisablePnacl[];
 }  // namespace switches
 
 #endif  // XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_

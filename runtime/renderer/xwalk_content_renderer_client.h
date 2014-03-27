@@ -46,6 +46,8 @@ class XWalkContentRendererClient
   virtual void WillReleaseScriptContext(blink::WebFrame* frame,
                                         v8::Handle<v8::Context>,
                                         int world_id) OVERRIDE;
+  virtual const void* CreatePPAPIInterface(
+      const std::string& interface_name) OVERRIDE;
 #if defined(OS_ANDROID)
   virtual unsigned long long VisitedLinkHash(const char* canonical_url,
                                              size_t length) OVERRIDE;
