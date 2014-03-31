@@ -11,11 +11,11 @@
 
 class NaClBrowserDelegateImpl : public NaClBrowserDelegate {
  public:
-  explicit NaClBrowserDelegateImpl(extensions::InfoMap* extension_info_map);
+  explicit NaClBrowserDelegateImpl();
   virtual ~NaClBrowserDelegateImpl();
 
-  virtual void ShowMissingArchInfobar(int render_process_id,
-                                      int render_view_id) OVERRIDE;
+  virtual void ShowNaClInfobar(int render_process_id, int render_view_id,
+                               int error_id) OVERRIDE;
   virtual bool DialogsAreSuppressed() OVERRIDE;
   virtual bool GetCacheDirectory(base::FilePath* cache_dir) OVERRIDE;
   virtual bool GetPluginDirectory(base::FilePath* plugin_dir) OVERRIDE;
@@ -33,9 +33,6 @@ class NaClBrowserDelegateImpl : public NaClBrowserDelegate {
       GetOnKeepaliveCallback() OVERRIDE;
 
  private:
-  scoped_refptr<extensions::InfoMap> extension_info_map_;
-  std::vector<URLPattern> debug_patterns_;
-  bool inverse_debug_patterns_;
   DISALLOW_COPY_AND_ASSIGN(NaClBrowserDelegateImpl);
 };
 

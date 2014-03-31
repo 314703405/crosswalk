@@ -15,6 +15,7 @@ enum {
   DIR_DATA_PATH = PATH_START,  // Directory where the cache and local storage
                                // data resides.
   DIR_INTERNAL_PLUGINS,        // Directory where internal plugins reside.
+
   FILE_NACL_PLUGIN,            // Full path to the internal NaCl plugin file.
   DIR_PNACL_COMPONENT,         // Full path to the latest PNaCl version
                                // (subdir of DIR_PNACL_BASE).

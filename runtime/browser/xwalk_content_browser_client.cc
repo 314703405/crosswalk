@@ -10,8 +10,10 @@
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/platform_file.h"
+#include "content/public/browser/browser_child_process_host.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/browser_ppapi_host.h"
+#include "content/public/browser/child_process_data.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/web_contents.h"
@@ -59,6 +61,8 @@
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
+
+using content::BrowserChildProcessHostIterator;
 
 namespace xwalk {
 
@@ -305,7 +309,6 @@ void XWalkContentBrowserClient::DidCreatePpapiPlugin(
 content::BrowserPpapiHost*
     XWalkContentBrowserClient::GetExternalBrowserPpapiHost(
         int plugin_process_id) {
-      /*
   BrowserChildProcessHostIterator iter(PROCESS_TYPE_NACL_LOADER);
   while (!iter.Done()) {
     nacl::NaClProcessHost* host = static_cast<nacl::NaClProcessHost*>(
@@ -317,7 +320,6 @@ content::BrowserPpapiHost*
     }
     ++iter;
   }
-  */
   return NULL;
 }
 

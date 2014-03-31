@@ -8,27 +8,18 @@
 // Defines all command line switches for XWalk.
 namespace switches {
 
-extern const char kXWalkDataPath[];
-
 extern const char kAppIcon[];
-
+extern const char kDisablePnacl[];
+extern const char kExperimentalFeatures[];
 extern const char kFullscreen[];
-
 extern const char kInstall[];
-
 extern const char kListApplications[];
-
+extern const char kListFeaturesFlags[];
 extern const char kUninstall[];
-
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
-
+extern const char kXWalkDataPath[];
 extern const char kXWalkRunAsService[];
 
-extern const char kListFeaturesFlags[];
-
-extern const char kExperimentalFeatures[];
-
-extern const char kDisablePnacl[];
 }  // namespace switches
 
 #endif  // XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_
