@@ -341,6 +341,10 @@
             'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h',
             'runtime/renderer/pepper/pepper_helper.cc',
             'runtime/renderer/pepper/pepper_helper.h',
+            'runtime/renderer/pepper/pepper_uma_host.cc',
+            'runtime/renderer/pepper/pepper_uma_host.h',
+            'runtime/renderer/pepper/xwalk_renderer_pepper_host_factory.cc',
+            'runtime/renderer/pepper/xwalk_renderer_pepper_host_factory.h',
           ],
           'dependencies': [
             '../components/nacl.gyp:nacl',
