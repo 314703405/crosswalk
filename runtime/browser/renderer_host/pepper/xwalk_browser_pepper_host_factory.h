@@ -1,11 +1,10 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef XWALK_RUNTIME_BROWSER_RENDERER_HOST_PEPPER_XWALK_BROWSER_PEPPER_HOST_FACTORY_H_
 #define XWALK_RUNTIME_BROWSER_RENDERER_HOST_PEPPER_XWALK_BROWSER_PEPPER_HOST_FACTORY_H_
 
-#include "base/compiler_specific.h"
 #include "ppapi/host/host_factory.h"
 
 namespace content {
