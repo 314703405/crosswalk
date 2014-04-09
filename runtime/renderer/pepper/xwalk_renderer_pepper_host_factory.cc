@@ -1,16 +1,11 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "xwalk/runtime/renderer/pepper/xwalk_renderer_pepper_host_factory.h"
 
-#include "base/logging.h"
 #include "content/public/renderer/renderer_ppapi_host.h"
-#include "ppapi/host/ppapi_host.h"
-#include "ppapi/host/resource_host.h"
 #include "ppapi/proxy/ppapi_messages.h"
-#include "ppapi/proxy/ppapi_message_utils.h"
-#include "ppapi/shared_impl/ppapi_permissions.h"
 #include "xwalk/runtime/renderer/pepper/pepper_uma_host.h"
 
 using ppapi::host::ResourceHost;
