@@ -1,13 +1,11 @@
-// Copyright 2013 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_NACL_HOST_NACL_BROWSER_DELEGATE_IMPL_H_
-#define CHROME_BROWSER_NACL_HOST_NACL_BROWSER_DELEGATE_IMPL_H_
+#ifndef XWALK_RUNTIME_BROWSER_NACL_HOST_NACL_BROWSER_DELEGATE_IMPL_H_
+#define XWALK_RUNTIME_BROWSER_NACL_HOST_NACL_BROWSER_DELEGATE_IMPL_H_
 
-#include "base/compiler_specific.h"
 #include "components/nacl/browser/nacl_browser_delegate.h"
-#include "extensions/browser/info_map.h"
 
 class NaClBrowserDelegateImpl : public NaClBrowserDelegate {
  public:
@@ -36,5 +34,4 @@ class NaClBrowserDelegateImpl : public NaClBrowserDelegate {
   DISALLOW_COPY_AND_ASSIGN(NaClBrowserDelegateImpl);
 };
 
-
-#endif  // CHROME_BROWSER_NACL_HOST_NACL_BROWSER_DELEGATE_IMPL_H_
+#endif  // XWALK_RUNTIME_BROWSER_NACL_HOST_NACL_BROWSER_DELEGATE_IMPL_H_
