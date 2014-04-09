@@ -326,25 +326,6 @@ content::BrowserPpapiHost*
   return NULL;
 }
 
-bool XWalkContentBrowserClient::SupportsBrowserPlugin(
-    content::BrowserContext* browser_context, const GURL& site_url) {
-  // TODO(halton): add later
-  return true;
-}
-
-bool XWalkContentBrowserClient::AllowPepperSocketAPI(
-    content::BrowserContext* browser_context,
-    const GURL& url,
-    bool private_api,
-    const content::SocketPermissionRequest* params) {
-#if defined(ENABLE_PLUGINS)
-  // Allow both public and private APIs if the command line says so.
-  return true;
-#else
-  return false;
-#endif
-}
-
 #if defined(OS_ANDROID)
 void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
   RuntimeResourceDispatcherHostDelegateAndroid::

@@ -160,4 +160,3 @@ void RegisterPathProvider() {
 }
 
 }  // namespace xwalk
-
