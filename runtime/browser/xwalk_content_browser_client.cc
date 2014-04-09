@@ -16,6 +16,7 @@
 #include "content/public/browser/child_process_data.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
+#include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
@@ -35,6 +36,7 @@
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"
@@ -163,17 +165,18 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
-  /*
-#if defined(ENABLE_PLUGINS)
-  host->AddFilter(new PluginInfoMessageFilter(id, profile));
-#endif
 #if !defined(DISABLE_NACL)
+  int id = host->GetID();
+  net::URLRequestContextGetter* context =
+      host->GetStoragePartition()->GetURLRequestContext();
+
   host->AddFilter(new nacl::NaClHostMessageFilter(
-      id, profile->IsOffTheRecord(),
-      profile->GetPath(),
+      id,
+      // TODO(Halton): IsOffTheRecord?
+      false,
+      host->GetBrowserContext()->GetPath(),
       context));
 #endif
-      */
   xwalk_runner_->OnRenderProcessWillLaunch(host);
 }
 

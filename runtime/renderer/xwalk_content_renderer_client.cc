@@ -124,6 +124,14 @@ const void* XWalkContentRendererClient::CreatePPAPIInterface(
   return NULL;
 }
 
+bool XWalkContentRendererClient::IsExternalPepperPlugin(
+    const std::string& module_name) {
+  // TODO(bbudge) remove this when the trusted NaCl plugin has been removed.
+  // We must defer certain plugin events for NaCl instances since we switch
+  // from the in-process to the out-of-process proxy after instantiating them.
+  return module_name == "Native Client";
+}
+
 #if defined(OS_ANDROID)
 unsigned long long XWalkContentRendererClient::VisitedLinkHash(
     const char* canonical_url, size_t length) {
