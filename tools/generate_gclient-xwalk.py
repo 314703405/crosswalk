@@ -13,6 +13,8 @@ option).
 import optparse
 import os
 import pprint
+import re
+import shutil
 import sys
 
 
@@ -28,7 +30,11 @@ class GClientFileGenerator(object):
     self._deps = None
     self._vars = None
     self._chromium_version = None
+    self._use_git = False
+    if options.use_git or os.environ.get("XWALK_USE_GIT") is not None:
+      self._use_git = True
     self._ParseDepsFile()
+
     if not 'src' in self._deps:
       raise RuntimeError("'src' not specified in deps file(%s)" % options.deps)
     self._src_dep = self._deps['src']
@@ -87,16 +93,79 @@ class GClientFileGenerator(object):
     for ignore in ignores:
       self._deps[ignore] = None
 
+  def _GenerateGitDeps(self):
+    """Generate .DEPS.git instead of DEPS
+    """
+    rel_dir = os.path.join(self._root_dir, self._chromium_version)
+    # Check whether the chromium_version directory is valid
+    if not os.path.exists(rel_dir):
+      url = 'http://src.chromium.org/svn/releases/' + self._chromium_version
+      cmd = 'svn co ' + url + ' ' + rel_dir
+      os.system(cmd)
+
+    # Update subversion anyway
+    cmd = ' svn up ' + rel_dir
+    os.system(cmd)
+
+    # Get branch name
+    f = open(os.path.join(rel_dir, 'DEPS'), 'r')
+    for line in f:
+      m = re.search('^.*/branches/chromium/(\d+)@.*$', line)
+      if m and m.group(1):
+        branch_name = m.group(1)
+        break
+
+    f.close()
+    if branch_name is None:
+      return
+
+    # Get .DEPS.git
+    deps_git_dir = os.path.join(rel_dir, 'deps_git')
+    cmd = 'svn co http://src.chromium.org/svn/branches/'
+    cmd += branch_name + '/src/ ' + deps_git_dir + ' --depth empty'
+    os.system(cmd)
+    cmd = 'svn up ' + os.path.join(deps_git_dir, '.DEPS.git')
+    os.system(cmd)
+    shutil.copyfile(os.path.join(deps_git_dir, '.DEPS.git'),
+                    os.path.join(rel_dir, '.DEPS.git'))
+    # Apply deps changes after branching point.
+    # .DEPS.git stopped updated after branching, while DEPS does, for eg:
+    # http://src.chromium.org/viewvc/chrome/branches/1985/src/DEPS?view=log
+    # http://src.chromium.org/viewvc/chrome/branches/1985/src/.DEPS.git?view=log
+    #
+    # Rebase owner is responsible to update the DEPS_git.diff
+    cur_dir = os.getcwd()
+    os.chdir(rel_dir)
+    cmd = 'patch -p0 < ' + os.path.join(self._root_dir, 'src', 'xwalk',
+                                        'tools', 'DEPS_git.diff')
+    os.system(cmd)
+    os.chdir(cur_dir)
+
   def Generate(self):
     self._AddIgnorePathFromEnv()
+    # FIXME(halton): with crbug.com/380991, src can not be specified in
+    # .gclient file, instead src will be fetched via
+    # tools/fetch_chromium_code.py in hooks phase.
+    if self._use_git:
+      self._deps['src'] = None
+
     solution = {
-      'name': self._chromium_version,
-      'url': 'http://src.chromium.org/svn/releases/%s' %
-              self._chromium_version,
-      'custom_deps': self._deps,
+        'name': self._chromium_version,
+        'url': 'http://src.chromium.org/svn/releases/%s' %
+               self._chromium_version,
+        'custom_deps': self._deps,
     }
+
+    # Most of dependencies in <release_dir>/DEPS are pointing to subversion.
+    # Unfortunately, svn command behind firewall randomly fails with error
+    # "501 Not Implemented". Instead, git repos are more stable to fetch.
+    if self._use_git:
+      solution['deps_file'] = '.DEPS.git'
+      self._GenerateGitDeps()
+
     if self._vars:
       solution['custom_vars'] = self._vars
+
     solutions = [solution]
     gclient_file = open(self._new_gclient_file, 'w')
     print "Place %s with solutions:\n%s" % (self._new_gclient_file, solutions)
@@ -105,6 +174,7 @@ class GClientFileGenerator(object):
     if os.environ.get('XWALK_OS_ANDROID'):
       target_os = ['android']
       gclient_file.write('target_os = %s\n' % target_os)
+
     if self._options.cache_dir:
       gclient_file.write('cache_dir = %s\n' %
                          pprint.pformat(self._options.cache_dir))
@@ -121,6 +191,10 @@ def main():
                                 'directory, so that all git repositories are '
                                 'cached there and shared across multiple '
                                 'clones.')
+  option_parser.add_option('--use-git', default=False,
+                           help='Use .DEPS.git instead of subversion DEPS. '
+                                'It is useful for those have subversion '
+                                'problem behind proxy.')
 
   # pylint: disable=W0612
   options, args = option_parser.parse_args()

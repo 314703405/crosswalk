@@ -32,6 +32,12 @@ hooks = [
     "action": ["python", "src/xwalk/tools/generate_gclient-xwalk.py"],
   },
   {
+    # Fetch Chromium code.
+    "name": "fetch-chromium",
+    "pattern": ".",
+    "action": ["python", "src/xwalk/tools/fetch_chromium_code.py"],
+  },
+  {
     # Fetch Crosswalk dependencies.
     "name": "fetch-deps",
     "pattern": ".",
