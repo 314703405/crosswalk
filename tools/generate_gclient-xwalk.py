@@ -17,6 +17,23 @@ import re
 import shutil
 import sys
 
+from utils import TryAddDepotToolsToPythonPath
+
+try:
+  import patch
+  from checkout import SvnCheckout
+except ImportError:
+  TryAddDepotToolsToPythonPath()
+
+try:
+  import patch
+  from checkout import SvnCheckout
+
+except ImportError:
+  sys.stderr.write("Can't find gclient_utils, please add your depot_tools "\
+                   "to PATH or PYTHONPATH\n")
+  sys.exit(1)
+
 
 class GClientFileGenerator(object):
   def __init__(self, options):
@@ -96,18 +113,14 @@ class GClientFileGenerator(object):
   def _GenerateGitDeps(self):
     """Generate .DEPS.git instead of DEPS
     """
-    rel_dir = os.path.join(self._root_dir, self._chromium_version)
-    # Check whether the chromium_version directory is valid
-    if not os.path.exists(rel_dir):
-      url = 'http://src.chromium.org/svn/releases/' + self._chromium_version
-      cmd = 'svn co ' + url + ' ' + rel_dir
-      os.system(cmd)
-
     # Update subversion anyway
-    cmd = ' svn up ' + rel_dir
-    os.system(cmd)
+    svn_url = 'http://src.chromium.org/svn/releases/' + self._chromium_version
+    co = SvnCheckout(self._root_dir, self._chromium_version,
+                     None, None, svn_url)
+    co.prepare(None)
 
     # Get branch name
+    rel_dir = os.path.join(self._root_dir, self._chromium_version)
     f = open(os.path.join(rel_dir, 'DEPS'), 'r')
     for line in f:
       m = re.search('^.*/branches/chromium/(\d+)@.*$', line)
@@ -121,25 +134,25 @@ class GClientFileGenerator(object):
 
     # Get .DEPS.git
     deps_git_dir = os.path.join(rel_dir, 'deps_git')
-    cmd = 'svn co http://src.chromium.org/svn/branches/'
-    cmd += branch_name + '/src/ ' + deps_git_dir + ' --depth empty'
-    os.system(cmd)
-    cmd = 'svn up ' + os.path.join(deps_git_dir, '.DEPS.git')
-    os.system(cmd)
-    shutil.copyfile(os.path.join(deps_git_dir, '.DEPS.git'),
-                    os.path.join(rel_dir, '.DEPS.git'))
+    svn_url = 'http://src.chromium.org/svn/branches/' + branch_name + '/src/'
+    co = SvnCheckout(rel_dir, 'deps_git', None, None, svn_url)
+    co.prepare(None, ['.DEPS.git'])
     # Apply deps changes after branching point.
     # .DEPS.git stopped updated after branching, while DEPS does, for eg:
     # http://src.chromium.org/viewvc/chrome/branches/1985/src/DEPS?view=log
     # http://src.chromium.org/viewvc/chrome/branches/1985/src/.DEPS.git?view=log
     #
     # Rebase owner is responsible to update the DEPS_git.diff
-    cur_dir = os.getcwd()
-    os.chdir(rel_dir)
-    cmd = 'patch -p0 < ' + os.path.join(self._root_dir, 'src', 'xwalk',
-                                        'tools', 'DEPS_git.diff')
-    os.system(cmd)
-    os.chdir(cur_dir)
+    f = open(os.path.join(self._root_dir,
+                          'src', 'xwalk', 'tools', 'DEPS_git.diff'))
+    diff = f.read()
+    f.close()
+
+    p = patch.FilePatchDiff('.DEPS.git', diff, [])
+    co.apply_patch([p])
+
+    shutil.copyfile(os.path.join(deps_git_dir, '.DEPS.git'),
+                    os.path.join(rel_dir, '.DEPS.git'))
 
   def Generate(self):
     self._AddIgnorePathFromEnv()
