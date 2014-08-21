@@ -688,9 +688,10 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     @Override
     public void onKeyValueChanged(String key, XWalkPreferencesInternal.PreferenceValue value) {
         if (key == null) return;
+        enableRemoteDebugging();
         if (key.equals(XWalkPreferencesInternal.REMOTE_DEBUGGING)) {
-            if (value.getBooleanValue()) enableRemoteDebugging();
-            else disableRemoteDebugging();
+            //if (value.getBooleanValue()) enableRemoteDebugging();
+            //else disableRemoteDebugging();
         } else if (key.equals(XWalkPreferencesInternal.ENABLE_JAVASCRIPT)) {
             if (mSettings != null) {
                 mSettings.setJavaScriptEnabled(value.getBooleanValue());
